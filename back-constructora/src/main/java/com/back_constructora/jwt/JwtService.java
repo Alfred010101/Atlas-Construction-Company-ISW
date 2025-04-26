@@ -2,11 +2,15 @@ package com.back_constructora.jwt;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
+import com.back_constructora.model.User;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -21,13 +25,15 @@ public class JwtService
 
     public String getToken(UserDetails user) 
     {
-        return getToken(Map.of(), user);
+        return getToken(new HashMap<>(), user);
     }
 
     private String getToken(Map<String, Object> extraClaims, UserDetails user) 
     {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + 1000 * 60 * 60 * 24);
+
+        extraClaims.put("role", ((User)user).getRole().name());
 
         return Jwts
             .builder()
