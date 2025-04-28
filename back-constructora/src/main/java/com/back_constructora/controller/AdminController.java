@@ -19,9 +19,8 @@ import org.springframework.web.server.ResponseStatusException;
 import com.back_constructora.dto.AllUsersDTO;
 import com.back_constructora.model.User;
 import com.back_constructora.service.UserService;
+import com.back_constructora.util.ApiResponse;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -88,11 +87,4 @@ public class AdminController {
         return "Welcome Spring Security... as user";
     }
 
-    @Getter
-    @AllArgsConstructor
-    private static class ApiResponse<T> 
-    {
-        private String message;
-        private T data;
-    }
 }
