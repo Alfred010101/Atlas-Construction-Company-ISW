@@ -36,12 +36,12 @@ const roles = [
   "CEO",
 ];
 
-export default function EditUserModal({
+const EditEmployee = ({
   open,
   emailToEdit,
   onClose,
   onSave,
-}: EditUserModalProps) {
+}: EditUserModalProps) => {
   const [user, setUser] = useState<User>({
     firstName: "",
     lastName: "",
@@ -74,7 +74,7 @@ export default function EditUserModal({
             username: data.data.username,
             phone: data.data.phone,
             role: data.data.role,
-            password: "", // vacío para que no aparezca nada
+            password: "",
           });
         })
         .catch((err) => {
@@ -233,4 +233,6 @@ export default function EditUserModal({
       </Box>
     </Modal>
   );
-}
+};
+
+export default EditEmployee;

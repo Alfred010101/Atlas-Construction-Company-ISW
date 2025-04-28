@@ -9,6 +9,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -47,7 +48,8 @@ public class AdminController {
     }
 
     @GetMapping("/findUser/{email}")
-    public ResponseEntity<?> findByEmail(@PathVariable("email") String email) {
+    public ResponseEntity<?> findByEmail(@PathVariable("email") String email) 
+    {
         return ResponseEntity
             .status(HttpStatus.OK)
             .body(new ApiResponse<>(
@@ -57,6 +59,21 @@ public class AdminController {
                 )
             );
     }
+
+    @PutMapping("/updateUser/{email}")
+    public ResponseEntity<ApiResponse<String>> updateUserByEmail(
+            @PathVariable("email") String email,
+            @RequestBody User updateUserRequest) 
+    {
+        try {
+            userService.updateUser(email, updateUserRequest);
+            return ResponseEntity.ok(new ApiResponse<>("Usuario actualizado correctamente.", null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>("Error al actualizar usuario: " + e.getMessage(), null));
+    }
+}
+
 
     @GetMapping
     public String welcome()

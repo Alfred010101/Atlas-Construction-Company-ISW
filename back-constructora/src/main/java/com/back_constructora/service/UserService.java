@@ -3,6 +3,7 @@ package com.back_constructora.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -64,4 +65,26 @@ public class UserService
         user.setPhone(body.phone());
         return ResponseEntity.ok(userRepository.save(user));
     }*/
+
+    public void updateUser(String email, User request) {
+    if (request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
+        userRepository.updateUserWithPassword(
+                request.getFirstName(),
+                request.getLastName(),
+                request.getPhone(),
+                request.getRole(),
+                new BCryptPasswordEncoder().encode(request.getPassword()),
+                email
+        );
+    } else {
+        userRepository.updateUserWithoutPassword(
+                request.getFirstName(),
+                request.getLastName(),
+                request.getPhone(),
+                request.getRole(),
+                email
+        );
+    }
+}
+
 }

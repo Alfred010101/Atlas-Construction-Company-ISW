@@ -24,7 +24,7 @@ import { Add, Edit, Delete, Search, Refresh } from "@mui/icons-material";
 import Dashboard from "./../../components/Dashboard";
 import { useMenuConfig } from "./menuConfig";
 import { useAuth } from "../../context/AuthContext";
-import RegisterEmployee from "../../components/modals/RegisterEmployee";
+import RegisterEmployeeModal from "../../components/modals/RegisterEmployee";
 import EditEmployeeModal from "../../components/modals/EditEmployee";
 
 interface Employee {
@@ -225,7 +225,7 @@ export default function Employees() {
           </Table>
         </TableContainer>
 
-        <RegisterEmployee
+        <RegisterEmployeeModal
           open={openDialog}
           handleClose={() => setOpenDialog(false)}
           handleSubmit={refreshFetchEmployees}
