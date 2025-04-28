@@ -23,6 +23,7 @@ import {
 } from "@mui/material";
 import { Add, Edit, Delete, Search } from "@mui/icons-material";
 import DashboardLayout from "./../../components/DashboardLayout";
+import { useMenuConfig } from "./../../pages/admin/menuConfig";
 
 interface Employee {
   id: number;
@@ -53,6 +54,7 @@ const initialEmployees: Employee[] = [
 ];
 
 export default function Employees() {
+  const { navItems } = useMenuConfig();
   const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterDepartment, setFilterDepartment] = useState("");
@@ -67,7 +69,7 @@ export default function Employees() {
   });
 
   return (
-    <DashboardLayout>
+    <DashboardLayout navItems={navItems}>
       <Box p={3}>
         <Typography variant="h4" mb={3}>
           Gestión de Empleados

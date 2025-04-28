@@ -30,15 +30,20 @@ import Person3Icon from "@mui/icons-material/Person3";
 import PendingActionsIcon from "@mui/icons-material/PendingActions";
 import ConstructionIcon from "@mui/icons-material/Construction";
 import { useAuth } from "./../context/AuthContext";
+import { MenuItemTypes } from "./../interfaces/MenuItemTypes";
 
 interface DashboardLayoutProps {
   children: ReactNode;
+  navItems: MenuItemTypes[];
 }
 
 const drawerWidth = 200;
 const collapsedWidth = 72;
 
-export default function DashboardLayout({ children }: DashboardLayoutProps) {
+export default function DashboardLayout({
+  children,
+  navItems,
+}: DashboardLayoutProps) {
   const [open, setOpen] = useState(true);
   const location = useLocation();
 
@@ -60,24 +65,24 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const settings = [
     {
       label: "Perfil",
-      icon: <PersonIcon fontSize="small" />,
+      icon: <PersonIcon />,
       action: () => logout(),
     },
     {
       label: "Actualizar Contraseña",
-      icon: <LockResetIcon fontSize="small" />,
+      icon: <LockResetIcon />,
       action: () => logout(),
     },
     {
       label: "Salir",
-      icon: <ExitToAppIcon fontSize="small" />,
+      icon: <ExitToAppIcon />,
       action: () => logout(),
     },
   ];
 
   const toggleDrawer = () => setOpen(!open);
 
-  const navItems = [
+  /*const navItems = [
     { label: "Empleados", icon: <Person3Icon />, path: "/admin/employees" },
     { label: "Projectos", icon: <ConstructionIcon />, path: "/admin/projects" },
     { label: "Almacenes", icon: <WarehouseIcon />, path: "/admin/warehouses" },
@@ -87,7 +92,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       path: "/admin/suppliers",
     },
     { label: "Stock", icon: <PendingActionsIcon />, path: "/admin/stock" },
-  ];
+  ];*/
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -267,7 +272,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                       backgroundColor: "#f5b041",
                       color: "white", // Color de texto seleccionado
                       "&:hover": {
-                        backgroundColor: "#16a085", // Color de hover seleccionado
+                        backgroundColor: "#f5b041", // Color de hover seleccionado
                       },
                       // Estilo para el icono cuando está seleccionado
                       "& .MuiListItemIcon-root": {

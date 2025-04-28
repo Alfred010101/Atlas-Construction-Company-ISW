@@ -42,7 +42,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (token) {
           localStorage.setItem("token", token);
           setIsAuthenticated(true);
-          console.log(getUserRoleFromToken(token));
           setRole(getUserRoleFromToken(token));
           setError(null);
           return true;
