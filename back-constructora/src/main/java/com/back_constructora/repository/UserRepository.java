@@ -77,4 +77,11 @@ public interface UserRepository extends JpaRepository<User, Integer>
             @Param("email") String email
     );
 
+    @Transactional
+    @Modifying
+    @Query(value = """
+        DELETE FROM users 
+        WHERE email = :email
+        """, nativeQuery = true)
+    void deleteByEmail(@Param("email") String email);
 }

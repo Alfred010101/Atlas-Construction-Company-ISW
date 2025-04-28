@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -71,9 +72,15 @@ public class AdminController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ApiResponse<>("Error al actualizar usuario: " + e.getMessage(), null));
+        }
     }
-}
 
+    @DeleteMapping("/deleteUser/{email}")
+    public ResponseEntity<?> deleteUser( @PathVariable("email") String email)
+    {
+        userService.deleteUserByEmail(email);
+        return ResponseEntity.ok("Usuario eliminado exitosamente.");
+    }
 
     @GetMapping
     public String welcome()

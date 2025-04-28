@@ -26,6 +26,13 @@ import { useMenuConfig } from "./menuConfig";
 import { useAuth } from "../../context/AuthContext";
 import RegisterEmployeeModal from "../../components/modals/RegisterEmployee";
 import EditEmployeeModal from "../../components/modals/EditEmployee";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+} from "@mui/material";
 
 interface Employee {
   name: string;
@@ -49,7 +56,43 @@ export default function Employees() {
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [emailToEdit, setEmailToEdit] = useState<string | null>(null);
 
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [emailToDelete, setEmailToDelete] = useState<string | null>(null);
+
   const { isAuthenticated } = useAuth();
+
+  const handleDeleteEmployee = async () => {
+    try {
+      if (!emailToDelete) return;
+
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(
+        `http://localhost:8080/api/v1/admin/deleteUser/${emailToDelete}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Error al eliminar el empleado.");
+      }
+
+      setSnackbarMessage("Empleado eliminado exitosamente!");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+      setOpenDeleteDialog(false);
+      refreshFetchEmployees("", "success");
+    } catch (error) {
+      console.error(error);
+      setSnackbarMessage("Error al eliminar el empleado.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    }
+  };
 
   const fetchEmployees = useCallback(async () => {
     try {
@@ -215,7 +258,13 @@ export default function Employees() {
                     >
                       <Edit />
                     </IconButton>
-                    <IconButton color="error">
+                    <IconButton
+                      color="error"
+                      onClick={() => {
+                        setEmailToDelete(employee.email);
+                        setOpenDeleteDialog(true);
+                      }}
+                    >
                       <Delete />
                     </IconButton>
                   </TableCell>
@@ -243,6 +292,24 @@ export default function Employees() {
             setOpenEditDialog(false);
           }}
         />
+
+        <Dialog
+          open={openDeleteDialog}
+          onClose={() => setOpenDeleteDialog(false)}
+        >
+          <DialogTitle>Confirmar eliminación</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              ¿Estás seguro que deseas eliminar este empleado?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenDeleteDialog(false)}>Cancelar</Button>
+            <Button color="error" onClick={handleDeleteEmployee}>
+              Eliminar
+            </Button>
+          </DialogActions>
+        </Dialog>
 
         {/* Snackbar de confirmación */}
         <Snackbar

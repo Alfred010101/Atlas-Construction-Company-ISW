@@ -66,25 +66,31 @@ public class UserService
         return ResponseEntity.ok(userRepository.save(user));
     }*/
 
-    public void updateUser(String email, User request) {
-    if (request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
-        userRepository.updateUserWithPassword(
-                request.getFirstName(),
-                request.getLastName(),
-                request.getPhone(),
-                request.getRole(),
-                new BCryptPasswordEncoder().encode(request.getPassword()),
-                email
-        );
-    } else {
-        userRepository.updateUserWithoutPassword(
-                request.getFirstName(),
-                request.getLastName(),
-                request.getPhone(),
-                request.getRole(),
-                email
-        );
+    public void updateUser(String email, User request) 
+    {
+        if (request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
+            userRepository.updateUserWithPassword(
+                    request.getFirstName(),
+                    request.getLastName(),
+                    request.getPhone(),
+                    request.getRole(),
+                    new BCryptPasswordEncoder().encode(request.getPassword()),
+                    email
+            );
+        } else {
+            userRepository.updateUserWithoutPassword(
+                    request.getFirstName(),
+                    request.getLastName(),
+                    request.getPhone(),
+                    request.getRole(),
+                    email
+            );
+        }
     }
-}
+
+    public void deleteUserByEmail(String email) {
+        userRepository.deleteByEmail(email);
+    }
+
 
 }
