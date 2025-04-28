@@ -1,5 +1,7 @@
 package com.back_constructora.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.back_constructora.model.Customer;
@@ -16,5 +18,10 @@ public class CustomerService
     public Customer save(Customer customer) 
     {
         return customerRepository.save(customer);
+    }
+
+    public List<Customer> findAllAsList()
+    {
+        return customerRepository.findAll();
     }
 }
