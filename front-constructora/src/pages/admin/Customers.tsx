@@ -22,7 +22,8 @@ import { Add, Edit, Delete, Search, Refresh } from "@mui/icons-material";
 import Dashboard from "./../../components/Dashboard";
 import { useMenuConfig } from "./menuConfig";
 import { useAuth } from "../../context/AuthContext";
-import RegisterCustomerModal from "../../components/modals/RegisterCustomer"; // <- este lo haremos ahorita
+import RegisterCustomerModal from "../../components/modals/RegisterCustomer";
+import EditCustomerModal from "../../components/modals/EditCustomer";
 
 interface Customer {
   id: number;
@@ -41,6 +42,9 @@ const Customers = () => {
   const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
     "success"
   );
+
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [idToEdit, setIDToEdit] = useState<number | null>(null);
 
   const { isAuthenticated } = useAuth();
 
@@ -172,7 +176,13 @@ const Customers = () => {
                   <TableCell>{customer.address}</TableCell>
                   <TableCell>{customer.phone}</TableCell>
                   <TableCell align="right">
-                    <IconButton color="primary">
+                    <IconButton
+                      color="primary"
+                      onClick={() => {
+                        setIDToEdit(customer.id);
+                        setOpenEditDialog(true);
+                      }}
+                    >
                       <Edit />
                     </IconButton>
                     <IconButton color="error">
@@ -189,6 +199,19 @@ const Customers = () => {
           open={openDialog}
           handleClose={() => setOpenDialog(false)}
           handleSubmit={refreshFetchCustomers}
+        />
+
+        <EditCustomerModal
+          open={openEditDialog}
+          customerId={idToEdit}
+          onClose={() => setOpenEditDialog(false)}
+          onSave={() => {
+            refreshFetchCustomers(
+              "Empleado actualizado exitosamente!",
+              "success"
+            );
+            setOpenEditDialog(false);
+          }}
         />
 
         {/* Snackbar de confirmación */}
