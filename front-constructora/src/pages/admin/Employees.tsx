@@ -23,8 +23,9 @@ import {
 import { Add, Edit, Delete, Search, Refresh } from "@mui/icons-material";
 import Dashboard from "./../../components/Dashboard";
 import { useMenuConfig } from "./menuConfig";
-import RegisterEmployee from "../../components/modals/RegisterEmployee";
 import { useAuth } from "../../context/AuthContext";
+import RegisterEmployee from "../../components/modals/RegisterEmployee";
+import EditEmployeeModal from "../../components/modals/EditEmployee";
 
 interface Employee {
   name: string;
@@ -44,6 +45,10 @@ export default function Employees() {
   const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
     "success"
   );
+
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [emailToEdit, setEmailToEdit] = useState<string | null>(null);
+
   const { isAuthenticated } = useAuth();
 
   const fetchEmployees = useCallback(async () => {
@@ -144,7 +149,7 @@ export default function Employees() {
             >
               <MenuItem value="">Todos los departamentos</MenuItem>
               <MenuItem value="CEO">CEO</MenuItem>
-              <MenuItem value="SYS_ADMIN">SYS_ADMIN</MenuItem>
+              <MenuItem value="SYS_ADMIN">Admin</MenuItem>
               <MenuItem value="RESOURCE_MANAGER">
                 Administrador de recursos
               </MenuItem>
@@ -201,7 +206,13 @@ export default function Employees() {
                   <TableCell>{employee.phone}</TableCell>
                   <TableCell>{employee.role}</TableCell>
                   <TableCell align="right">
-                    <IconButton color="primary">
+                    <IconButton
+                      color="primary"
+                      onClick={() => {
+                        setEmailToEdit(employee.email);
+                        setOpenEditDialog(true);
+                      }}
+                    >
                       <Edit />
                     </IconButton>
                     <IconButton color="error">
@@ -218,6 +229,19 @@ export default function Employees() {
           open={openDialog}
           handleClose={() => setOpenDialog(false)}
           handleSubmit={refreshFetchEmployees}
+        />
+
+        <EditEmployeeModal
+          open={openEditDialog}
+          emailToEdit={emailToEdit}
+          onClose={() => setOpenEditDialog(false)}
+          onSave={() => {
+            refreshFetchEmployees(
+              "Empleado actualizado exitosamente!",
+              "success"
+            );
+            setOpenEditDialog(false);
+          }}
         />
 
         {/* Snackbar de confirmación */}

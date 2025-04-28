@@ -7,10 +7,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.back_constructora.dto.AllUsersDTO;
 import com.back_constructora.model.User;
@@ -42,6 +44,18 @@ public class AdminController {
         return ResponseEntity
             .status(HttpStatus.OK)
             .body(new ApiResponse<>("Todos los usuarios disponibles", userService.findAllAsList().orElse(Collections.emptyList())));
+    }
+
+    @GetMapping("/findUser/{email}")
+    public ResponseEntity<?> findByEmail(@PathVariable("email") String email) {
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(new ApiResponse<>(
+                "Empleado encotrado", 
+                userService.findByEmailAllProps(email)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND))
+                )
+            );
     }
 
     @GetMapping

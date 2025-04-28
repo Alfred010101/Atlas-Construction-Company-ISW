@@ -41,6 +41,16 @@ public class UserService
         return userRepository.findByEmail(email);
     }
 
+    public Optional<AllUsersDTO> findByEmailAllProps(String email)
+    {
+        return userRepository.findEployeeByEmailAllProps(email);
+    }
+
+    public Optional<User> findByUserName(String email)
+    {
+        return userRepository.findByUsername(email);
+    }
+
     public Optional<List<AllUsersDTO>> findAllAsList()
     {
         return userRepository.findAllAsList();

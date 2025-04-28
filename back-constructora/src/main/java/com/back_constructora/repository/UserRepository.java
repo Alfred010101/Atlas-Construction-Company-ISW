@@ -29,4 +29,11 @@ public interface UserRepository extends JpaRepository<User, Integer>
         """, nativeQuery = true)
     Optional<List<AllUsersDTO>> findAllAsList();
 
+    @Query(value = """
+        SELECT first_name AS firstName, last_name AS lastName, email AS username, phone, role
+        FROM users
+        WHERE email = :email;
+        """, nativeQuery = true)
+    Optional<AllUsersDTO> findEployeeByEmailAllProps(@Param("email") String email);
+
 }
