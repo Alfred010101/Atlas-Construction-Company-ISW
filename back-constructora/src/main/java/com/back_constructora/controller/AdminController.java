@@ -27,8 +27,8 @@ public class AdminController {
 
     private final UserService userService;
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<User>> createUser(@Validated @RequestBody User user) 
+    @PostMapping("/registerUser")
+    public ResponseEntity<ApiResponse<User>> createEmployee(@Validated @RequestBody User user) 
     {
         User savedUser = userService.save(user);
         return ResponseEntity

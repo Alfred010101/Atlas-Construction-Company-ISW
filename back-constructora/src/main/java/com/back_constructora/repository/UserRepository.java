@@ -24,8 +24,8 @@ public interface UserRepository extends JpaRepository<User, Integer>
     Optional<User> findByEmail(@Param("email") String email);
 
     @Query(value = """
-        SELECT u.first_name AS firstName, u.last_name AS lastName, u.email AS username, u.phone, u.role
-        FROM users u;
+        SELECT first_name AS firstName, last_name AS lastName, email AS username, phone, role
+        FROM users;
         """, nativeQuery = true)
     Optional<List<AllUsersDTO>> findAllAsList();
 

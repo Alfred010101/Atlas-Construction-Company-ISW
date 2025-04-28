@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Button,
   IconButton,
   InputAdornment,
   Paper,
+  Snackbar,
+  Alert,
   Table,
   TableBody,
   TableCell,
@@ -16,8 +18,9 @@ import {
   Typography,
   Select,
   MenuItem,
+  Stack,
 } from "@mui/material";
-import { Add, Edit, Delete, Search } from "@mui/icons-material";
+import { Add, Edit, Delete, Search, Refresh } from "@mui/icons-material";
 import Dashboard from "./../../components/Dashboard";
 import { useMenuConfig } from "./menuConfig";
 import RegisterEmployee from "../../components/modals/RegisterEmployee";
@@ -36,54 +39,63 @@ export default function Employees() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterDepartment, setFilterDepartment] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
+    "success"
+  );
   const { isAuthenticated } = useAuth();
 
-  if (!isAuthenticated) {
-    return <Typography>No autorizado. Por favor, inicie sesión.</Typography>;
-  }
+  const fetchEmployees = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        console.error("Token no disponible.");
+        return;
+      }
+
+      const response = await fetch(
+        "http://localhost:8080/api/v1/admin/allUsers",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Error al obtener los empleados.");
+      }
+
+      const data = await response.json();
+
+      const employeesData = data.data.map((user: any) => ({
+        name: `${user.firstName} ${user.lastName}`,
+        email: user.username,
+        phone: user.phone,
+        role: user.role,
+      }));
+
+      setEmployees(employeesData);
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error("Error fetching employees:", error);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchEmployees = async () => {
-      try {
-        const token = localStorage.getItem("token");
-
-        if (!token) {
-          console.error("Token no disponible.");
-          return;
-        }
-
-        const response = await fetch(
-          "http://localhost:8080/api/v1/admin/allUsers",
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Error al obtener los empleados.");
-        }
-
-        const data = await response.json();
-
-        const employeesData = data.data.map((user: any) => ({
-          name: `${user.firstName} ${user.lastName}`,
-          email: user.username,
-          phone: user.phone,
-          role: user.role,
-        }));
-
-        setEmployees(employeesData);
-      } catch (error) {
-        console.error("Error fetching employees:", error);
-      }
-    };
-
     fetchEmployees();
-  }, []);
+    refreshFetchEmployees("Empleados cargados exitosamente!", "success");
+  }, [fetchEmployees]);
+
+  const refreshFetchEmployees = (text: string, type: "success" | "error") => {
+    fetchEmployees();
+    setSnackbarMessage(text);
+    setSnackbarSeverity(type);
+  };
 
   const filteredEmployees = employees.filter((emp) => {
     return (
@@ -95,10 +107,9 @@ export default function Employees() {
     );
   });
 
-  // Función para agregar un nuevo empleado
-  const handleAddEmployee = (newEmployee: Employee) => {
-    setEmployees([...employees, newEmployee]);
-  };
+  if (!isAuthenticated) {
+    return <Typography>No autorizado. Por favor, inicie sesión.</Typography>;
+  }
 
   return (
     <Dashboard navItems={navItems}>
@@ -137,13 +148,28 @@ export default function Employees() {
             </Select>
           </Box>
 
-          <Button
-            variant="contained"
-            startIcon={<Add />}
-            onClick={() => setOpenDialog(true)}
-          >
-            Agregar empleado
-          </Button>
+          <Stack direction="row" spacing={1}>
+            <Button
+              variant="outlined"
+              startIcon={<Refresh />}
+              onClick={() => {
+                refreshFetchEmployees(
+                  "Empleados recargados exitosamente!",
+                  "success"
+                );
+              }}
+            >
+              Recargar
+            </Button>
+
+            <Button
+              variant="contained"
+              startIcon={<Add />}
+              onClick={() => setOpenDialog(true)}
+            >
+              Agregar empleado
+            </Button>
+          </Stack>
         </Toolbar>
 
         <TableContainer component={Paper}>
@@ -179,12 +205,28 @@ export default function Employees() {
           </Table>
         </TableContainer>
 
-        {/* Modal para agregar empleados */}
         <RegisterEmployee
           open={openDialog}
           handleClose={() => setOpenDialog(false)}
-          handleSubmit={handleAddEmployee}
+          handleSubmit={refreshFetchEmployees}
         />
+
+        {/* Snackbar de confirmación */}
+        <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={3000}
+          onClose={() => setSnackbarOpen(false)}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        >
+          <Alert
+            onClose={() => setSnackbarOpen(false)}
+            severity={snackbarSeverity}
+            variant="filled"
+            sx={{ width: "100%" }}
+          >
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
       </Box>
     </Dashboard>
   );
