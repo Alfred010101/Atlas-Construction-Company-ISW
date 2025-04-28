@@ -8,7 +8,7 @@ import { AuthProvider } from "./context/AuthContext";
 import Login from "./pages/Login";
 import DashboardConstruction from "./pages/construction/Dashboard";
 import DashboardManager from "./pages/manager/Dashboard";
-import DashboardWarehose from "./pages/warehouse/Dashboard";
+import DashboardWarehose from "./pages/warehouse/Stock";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import "./App.css";
 import EmployeesPage from "./pages/admin/Employees";

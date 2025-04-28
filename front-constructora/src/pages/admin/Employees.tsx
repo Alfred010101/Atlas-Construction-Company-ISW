@@ -1,11 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   IconButton,
   InputAdornment,
   Paper,
@@ -24,54 +20,90 @@ import {
 import { Add, Edit, Delete, Search } from "@mui/icons-material";
 import Dashboard from "./../../components/Dashboard";
 import { useMenuConfig } from "./menuConfig";
+import RegisterEmployee from "../../components/modals/RegisterEmployee";
+import { useAuth } from "../../context/AuthContext";
 
 interface Employee {
-  id: number;
   name: string;
-  position: string;
-  department: string;
+  email: string;
+  phone: string;
+  role: string;
 }
-
-const initialEmployees: Employee[] = [
-  {
-    id: 1,
-    name: "Juan Pérez",
-    position: "Ingeniero Civil",
-    department: "Obras",
-  },
-  {
-    id: 2,
-    name: "Ana Gómez",
-    position: "Contadora",
-    department: "Administración",
-  },
-  {
-    id: 1,
-    name: "Juan Pérez Diaz",
-    position: "Ingeniero Civil",
-    department: "S",
-  },
-];
 
 export default function Employees() {
   const { navItems } = useMenuConfig();
-  const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterDepartment, setFilterDepartment] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
+  const { isAuthenticated } = useAuth();
+
+  if (!isAuthenticated) {
+    return <Typography>No autorizado. Por favor, inicie sesión.</Typography>;
+  }
+
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+          console.error("Token no disponible.");
+          return;
+        }
+
+        const response = await fetch(
+          "http://localhost:8080/api/v1/admin/allUsers",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Error al obtener los empleados.");
+        }
+
+        const data = await response.json();
+
+        const employeesData = data.data.map((user: any) => ({
+          name: `${user.firstName} ${user.lastName}`,
+          email: user.username,
+          phone: user.phone,
+          role: user.role,
+        }));
+
+        setEmployees(employeesData);
+      } catch (error) {
+        console.error("Error fetching employees:", error);
+      }
+    };
+
+    fetchEmployees();
+  }, []);
 
   const filteredEmployees = employees.filter((emp) => {
     return (
       (emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        emp.position.toLowerCase().includes(searchTerm.toLowerCase())) &&
-      (filterDepartment ? emp.department === filterDepartment : true)
+        emp.role.toLowerCase().includes(searchTerm.toLowerCase())) &&
+      (filterDepartment
+        ? emp.phone.toLowerCase() === filterDepartment.toLowerCase()
+        : true)
     );
   });
+
+  // Función para agregar un nuevo empleado
+  const handleAddEmployee = (newEmployee: Employee) => {
+    setEmployees([...employees, newEmployee]);
+  };
 
   return (
     <Dashboard navItems={navItems}>
       <Box p={3}>
-        <Typography variant="h4" mb={3}>
+        <Typography variant="h4" mb={3} align="center">
           Gestión de Empleados
         </Typography>
 
@@ -119,18 +151,20 @@ export default function Employees() {
             <TableHead>
               <TableRow>
                 <TableCell>Nombre</TableCell>
+                <TableCell>Email</TableCell>
+                <TableCell>Teléfono</TableCell>
                 <TableCell>Puesto</TableCell>
-                <TableCell>Departamento</TableCell>
                 <TableCell align="right">Acciones</TableCell>
               </TableRow>
             </TableHead>
 
             <TableBody>
-              {filteredEmployees.map((employee) => (
-                <TableRow key={employee.id}>
+              {filteredEmployees.map((employee, index) => (
+                <TableRow key={index}>
                   <TableCell>{employee.name}</TableCell>
-                  <TableCell>{employee.position}</TableCell>
-                  <TableCell>{employee.department}</TableCell>
+                  <TableCell>{employee.email}</TableCell>
+                  <TableCell>{employee.phone}</TableCell>
+                  <TableCell>{employee.role}</TableCell>
                   <TableCell align="right">
                     <IconButton color="primary">
                       <Edit />
@@ -146,24 +180,11 @@ export default function Employees() {
         </TableContainer>
 
         {/* Modal para agregar empleados */}
-        <Dialog
+        <RegisterEmployee
           open={openDialog}
-          onClose={() => setOpenDialog(false)}
-          fullWidth
-          maxWidth="sm"
-        >
-          <DialogTitle>Agregar Nuevo Empleado</DialogTitle>
-          <DialogContent>
-            {/* Aquí luego pondrías los campos de formulario */}
-            <Typography>Formulario de registro aquí...</Typography>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setOpenDialog(false)}>Cancelar</Button>
-            <Button variant="contained" onClick={() => setOpenDialog(false)}>
-              Guardar
-            </Button>
-          </DialogActions>
-        </Dialog>
+          handleClose={() => setOpenDialog(false)}
+          handleSubmit={handleAddEmployee}
+        />
       </Box>
     </Dashboard>
   );

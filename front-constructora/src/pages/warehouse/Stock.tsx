@@ -2,13 +2,13 @@ import { Typography } from "@mui/material";
 import Dashboard from "./../../components/Dashboard";
 import { useMenuConfig } from "./menuConfig";
 
-const Projects = () => {
+const Stock = () => {
   const { navItems } = useMenuConfig();
   return (
     <Dashboard navItems={navItems}>
-      <Typography variant="h4">Projects</Typography>
+      <Typography variant="h4">Stock</Typography>
     </Dashboard>
   );
 };
 
-export default Projects;
+export default Stock;

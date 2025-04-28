@@ -1,4 +1,4 @@
-import { Box, Toolbar } from "@mui/material";
+import { Box } from "@mui/material";
 import { ReactNode } from "react";
 
 interface DashboardContentProps {
@@ -16,7 +16,6 @@ const DashboardContent = ({ children }: DashboardContentProps) => {
         transition: "margin 0.7s",
       }}
     >
-      <Toolbar />
       {children}
     </Box>
   );
