@@ -1,10 +1,12 @@
 package com.back_constructora.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.back_constructora.dto.AllUsersDTO;
 import com.back_constructora.model.User;
 import com.back_constructora.repository.UserRepository;
 
@@ -37,6 +39,11 @@ public class UserService
     public Optional<User> findByEmail(String email)
     {
         return userRepository.findByEmail(email);
+    }
+
+    public Optional<List<AllUsersDTO>> findAllAsList()
+    {
+        return userRepository.findAllAsList();
     }
 
     /*public ResponseEntity<?> update(User user, UserUpdateRequestDTO body)
