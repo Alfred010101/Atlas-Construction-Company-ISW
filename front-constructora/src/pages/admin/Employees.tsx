@@ -81,11 +81,9 @@ export default function Employees() {
         throw new Error("Error al eliminar el empleado.");
       }
 
-      setSnackbarMessage("Empleado eliminado exitosamente!");
-      setSnackbarSeverity("success");
       setSnackbarOpen(true);
       setOpenDeleteDialog(false);
-      refreshFetchEmployees("", "success");
+      refreshFetchEmployees("Empleado eliminado exitosamente!", "success");
     } catch (error) {
       console.error(error);
       setSnackbarMessage("Error al eliminar el empleado.");

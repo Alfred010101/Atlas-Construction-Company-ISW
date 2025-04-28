@@ -12,6 +12,7 @@ import DashboardWarehose from "./pages/warehouse/Stock";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import "./App.css";
 import EmployeesPage from "./pages/admin/Employees";
+import CustomersPage from "./pages/admin/Customers";
 import ProjectsPage from "./pages/admin/Projects";
 import WarehousePage from "./pages/admin/Warehouse";
 import SuppliersPage from "./pages/admin/Suppliers";
@@ -31,6 +32,7 @@ function App() {
             <Route element={<ProtectedRoute allowedRoles={["SYS_ADMIN"]} />}>
               <Route path="/admin" element={<EmployeesPage />} />
               <Route path="/admin/employees" element={<EmployeesPage />} />
+              <Route path="/admin/customers" element={<CustomersPage />} />
               <Route path="/admin/projects" element={<ProjectsPage />} />
               <Route path="/admin/warehouses" element={<WarehousePage />} />
               <Route path="/admin/suppliers" element={<SuppliersPage />} />

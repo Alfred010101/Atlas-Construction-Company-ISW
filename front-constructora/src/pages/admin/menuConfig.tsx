@@ -6,6 +6,7 @@ import {
   Assessment as AssessmentIcon,
   LocalShipping as LocalShippingIcon,
   PendingActions as PendingActionsIcon,
+  People as PeopleIcon,
 } from "@mui/icons-material";
 
 export const useMenuConfig = () => {
@@ -14,6 +15,11 @@ export const useMenuConfig = () => {
       label: "Empleados",
       icon: <Person3Icon />,
       path: "/admin/employees",
+    },
+    {
+      label: "Clientes",
+      icon: <PeopleIcon />,
+      path: "/admin/customers",
     },
     {
       label: "Proyectos",
