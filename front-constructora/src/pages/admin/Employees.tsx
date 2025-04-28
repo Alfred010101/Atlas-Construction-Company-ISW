@@ -102,7 +102,7 @@ export default function Employees() {
       (emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         emp.role.toLowerCase().includes(searchTerm.toLowerCase())) &&
       (filterDepartment
-        ? emp.phone.toLowerCase() === filterDepartment.toLowerCase()
+        ? emp.role.toLowerCase() === filterDepartment.toLowerCase()
         : true)
     );
   });
@@ -143,8 +143,17 @@ export default function Employees() {
               sx={{ minWidth: 150 }}
             >
               <MenuItem value="">Todos los departamentos</MenuItem>
-              <MenuItem value="Obras">Obras</MenuItem>
-              <MenuItem value="Administración">Administración</MenuItem>
+              <MenuItem value="CEO">CEO</MenuItem>
+              <MenuItem value="SYS_ADMIN">SYS_ADMIN</MenuItem>
+              <MenuItem value="RESOURCE_MANAGER">
+                Administrador de recursos
+              </MenuItem>
+              <MenuItem value="CONSTRUCTION_SUPERVISOR">
+                Supervisor de obra
+              </MenuItem>
+              <MenuItem value="WAREHOUSE_SUPERVISOR">
+                Supervisor de almacen
+              </MenuItem>
             </Select>
           </Box>
 
@@ -179,7 +188,7 @@ export default function Employees() {
                 <TableCell>Nombre</TableCell>
                 <TableCell>Email</TableCell>
                 <TableCell>Teléfono</TableCell>
-                <TableCell>Puesto</TableCell>
+                <TableCell>Rol</TableCell>
                 <TableCell align="right">Acciones</TableCell>
               </TableRow>
             </TableHead>
