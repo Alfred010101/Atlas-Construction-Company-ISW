@@ -1,6 +1,6 @@
 import { Typography } from "@mui/material";
-import DashboardLayout from "./../../components/DashboardLayout";
-import { useMenuConfig } from "./../../pages/admin/menuConfig";
+import DashboardLayout from "./../../components/Dashboard";
+import { useMenuConfig } from "./menuConfig";
 
 const Projects = () => {
   const { navItems } = useMenuConfig();

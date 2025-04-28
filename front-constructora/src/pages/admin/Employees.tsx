@@ -22,8 +22,8 @@ import {
   MenuItem,
 } from "@mui/material";
 import { Add, Edit, Delete, Search } from "@mui/icons-material";
-import DashboardLayout from "./../../components/DashboardLayout";
-import { useMenuConfig } from "./../../pages/admin/menuConfig";
+import Dashboard from "./../../components/Dashboard";
+import { useMenuConfig } from "./menuConfig";
 
 interface Employee {
   id: number;
@@ -69,7 +69,7 @@ export default function Employees() {
   });
 
   return (
-    <DashboardLayout navItems={navItems}>
+    <Dashboard navItems={navItems}>
       <Box p={3}>
         <Typography variant="h4" mb={3}>
           Gestión de Empleados
@@ -165,6 +165,6 @@ export default function Employees() {
           </DialogActions>
         </Dialog>
       </Box>
-    </DashboardLayout>
+    </Dashboard>
   );
 }

@@ -6,17 +6,16 @@ import {
 } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import Login from "./pages/Login";
-import DashboardAdmin from "./pages/admin/Dashboard";
 import DashboardConstruction from "./pages/construction/Dashboard";
 import DashboardManager from "./pages/manager/Dashboard";
 import DashboardWarehose from "./pages/warehouse/Dashboard";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import "./App.css";
-import EmployeesPage from "./components/admin/Employees";
-import ProjectsPage from "./components/admin/Projects";
-import WarehousePage from "./components/admin/Warehouse";
-import SuppliersPage from "./components/admin/Suppliers";
-import StockPage from "./components/admin/Stock";
+import EmployeesPage from "./pages/admin/Employees";
+import ProjectsPage from "./pages/admin/Projects";
+import WarehousePage from "./pages/admin/Warehouse";
+import SuppliersPage from "./pages/admin/Suppliers";
+import StockPage from "./pages/admin/Stock";
 
 function App() {
   return (
@@ -30,7 +29,7 @@ function App() {
               <Route path="/ceo" element={<DashboardConstruction />} />
             </Route>
             <Route element={<ProtectedRoute allowedRoles={["SYS_ADMIN"]} />}>
-              <Route path="/admin" element={<DashboardAdmin />} />
+              <Route path="/admin" element={<EmployeesPage />} />
               <Route path="/admin/employees" element={<EmployeesPage />} />
               <Route path="/admin/projects" element={<ProjectsPage />} />
               <Route path="/admin/warehouses" element={<WarehousePage />} />
