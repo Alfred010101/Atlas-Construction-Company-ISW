@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.back_constructora.dto.AllUsersDTO;
+import com.back_constructora.dto.UserDTO;
 import com.back_constructora.model.User;
 import com.back_constructora.repository.UserRepository;
 
@@ -92,5 +93,8 @@ public class UserService
         userRepository.deleteByEmail(email);
     }
 
-
+    public Optional<List<UserDTO>> getSuperviFullNameDto()
+    {
+        return userRepository.getSuperviFullNameDto();
+    }
 }

@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/v1/admin/customers")
 @RequiredArgsConstructor
-public class CustomerController 
+public class AdminCustomerController 
 {
 
     private final CustomerService customerService;
@@ -70,5 +70,12 @@ public class CustomerController
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ApiResponse<>("Error al actualizar cliente: " + e.getMessage(), null));
         }
+    }
+
+    @GetMapping("/getCustomers")
+    public ResponseEntity<ApiResponse<?>> getAllCustomersFromNewProject() {
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(new ApiResponse<>("Todos los supervisores de obra", customerService.getCustomerFullNameDto()));
     }
 }

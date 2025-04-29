@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.back_constructora.dto.CustomerDTO;
 import com.back_constructora.model.Customer;
 import com.back_constructora.repository.CustomerRepository;
 
@@ -33,7 +34,6 @@ public class CustomerService
 
     public void updateUser(Customer request)
     {
-        System.out.println(request);
         customerRepository.updateCustomer(
             request.getId(),
             request.getFirstName(),
@@ -41,5 +41,10 @@ public class CustomerService
             request.getPhone(),
             request.getAddress()            
         );
+    }
+
+    public Optional<List<CustomerDTO>> getCustomerFullNameDto()
+    {
+        return customerRepository.getCustomerFullNameDto();
     }
 }

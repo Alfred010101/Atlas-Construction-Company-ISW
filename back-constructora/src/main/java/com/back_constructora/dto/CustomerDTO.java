@@ -1,16 +1,13 @@
 package com.back_constructora.dto;
 
-import com.back_constructora.model.Role;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL) 
-public interface AllUsersDTO 
+public interface CustomerDTO 
 {
     Integer getId();
     String getFirstName();
     String getLastName(); 
-    String getUsername();
-    String getPassword();
+    String getAddress();
     String getPhone();
-    Role getRole();
-}
+} 

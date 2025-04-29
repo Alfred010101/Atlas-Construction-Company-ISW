@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.back_constructora.dto.AllUsersDTO;
+import com.back_constructora.dto.UserDTO;
 import com.back_constructora.model.Role;
 import com.back_constructora.model.User;
 
@@ -84,4 +85,11 @@ public interface UserRepository extends JpaRepository<User, Integer>
         WHERE email = :email
         """, nativeQuery = true)
     void deleteByEmail(@Param("email") String email);
+
+    @Query(value = """
+        SELECT id, first_name AS firstName, last_name AS lastName
+        FROM users
+        WHERE role = 'CONSTRUCTION_SUPERVISOR';
+        """, nativeQuery = true)
+    Optional<List<UserDTO>> getSuperviFullNameDto();
 }
