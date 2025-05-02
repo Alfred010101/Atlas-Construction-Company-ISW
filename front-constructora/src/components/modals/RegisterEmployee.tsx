@@ -12,14 +12,15 @@ import {
   SelectChangeEvent,
 } from "@mui/material";
 import { Snackbar, Alert } from "@mui/material";
+import {
+  validateName,
+  validateUsername,
+  validatePassword,
+  validatePhoneMX,
+  validateRole,
+} from "./../../utils/validations";
 
-const roles = [
-  "SYS_ADMIN",
-  "RESOURCE_MANAGER",
-  "CONSTRUCTION_SUPERVISOR",
-  "WAREHOUSE_SUPERVISOR",
-  "CEO",
-];
+import { roles } from "./../../utils/varConst";
 
 const RegisterEmployee = ({ open, handleClose, handleSubmit }: any) => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -33,22 +34,82 @@ const RegisterEmployee = ({ open, handleClose, handleSubmit }: any) => {
     role: "",
   });
 
+  const [errors, setErrors] = useState({
+    firstName: "",
+    lastName: "",
+    username: "",
+    password: "",
+    phone: "",
+    role: "",
+  });
+
+  // Validación en tiempo real
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
     setUserData({
       ...userData,
-      [e.target.name]: e.target.value,
+      [name]: value,
+    });
+
+    if (name === "firstName" || name === "lastName") {
+      setErrors({
+        ...errors,
+        [name]: validateName(value),
+      });
+    } else if (name === "username") {
+      setErrors({
+        ...errors,
+        [name]: validateUsername(value),
+      });
+    } else if (name === "password") {
+      setErrors({
+        ...errors,
+        [name]: validatePassword(value),
+      });
+    } else if (name === "phone") {
+      setErrors({
+        ...errors,
+        [name]: validatePhoneMX(value),
+      });
+    }
+  };
+
+  // Validación en tiempo real
+  const handleRoleChange = (e: SelectChangeEvent<string>) => {
+    const value = e.target.value;
+    setUserData({
+      ...userData,
+      role: value,
+    });
+
+    setErrors({
+      ...errors,
+      role: validateRole(value),
     });
   };
 
-  const handleRoleChange = (e: SelectChangeEvent<string>) => {
-    setUserData({
-      ...userData,
-      role: e.target.value,
-    });
+  const validateForm = () => {
+    const newErrors = {
+      firstName: validateName(userData.firstName),
+      lastName: validateName(userData.lastName),
+      username: validateUsername(userData.username),
+      password: validatePassword(userData.password),
+      phone: validatePhoneMX(userData.phone),
+      role: validateRole(userData.role),
+    };
+
+    setErrors(newErrors);
+
+    return !Object.values(newErrors).some((error) => error);
   };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
 
     try {
       const token = localStorage.getItem("token");
@@ -82,12 +143,25 @@ const RegisterEmployee = ({ open, handleClose, handleSubmit }: any) => {
       handleClose();
       setOpenSnackbar(true);
     } catch (error) {
-      console.error("Error registrando empleado:", error);
+      handleSubmit(
+        "Error registrando empleado: ".concat(String(error)),
+        "error"
+      );
+      handleClose();
+      setOpenSnackbar(true);
     }
   };
 
   const handleClearFields = () => {
     setUserData({
+      firstName: "",
+      lastName: "",
+      username: "",
+      password: "",
+      phone: "",
+      role: "",
+    });
+    setErrors({
       firstName: "",
       lastName: "",
       username: "",
@@ -108,7 +182,7 @@ const RegisterEmployee = ({ open, handleClose, handleSubmit }: any) => {
             transform: "translate(-50%, -50%)",
             backgroundColor: "white",
             padding: 3,
-            borderRadius: 2,
+            borderRadius: 5,
             width: 650,
           }}
         >
@@ -119,87 +193,107 @@ const RegisterEmployee = ({ open, handleClose, handleSubmit }: any) => {
 
             <TextField
               label="Nombre(s)"
-              variant="outlined"
+              variant="standard"
               fullWidth
               name="firstName"
               value={userData.firstName}
               onChange={handleChange}
               margin="normal"
-              autoComplete="off"
+              error={!!errors.firstName}
+              helperText={errors.firstName}
             />
 
             <TextField
               label="Apellido(s)"
-              variant="outlined"
+              variant="standard"
               fullWidth
               name="lastName"
               value={userData.lastName}
               onChange={handleChange}
               margin="normal"
-              autoComplete="off"
+              error={!!errors.lastName}
+              helperText={errors.lastName}
             />
 
             <TextField
-              label="Correo Electrónico"
-              variant="outlined"
+              label="Usuario"
+              variant="standard"
               fullWidth
               name="username"
               value={userData.username}
               onChange={handleChange}
               margin="normal"
-              autoComplete="off"
+              error={!!errors.username}
+              helperText={errors.username}
             />
 
             <TextField
               label="Contraseña"
-              variant="outlined"
+              variant="standard"
               fullWidth
               name="password"
               type="password"
               value={userData.password}
               onChange={handleChange}
               margin="normal"
-              autoComplete="off"
+              error={!!errors.password}
+              helperText={errors.password}
             />
 
             <TextField
-              label="Teléfono"
-              variant="outlined"
+              label="Teléfono (México)"
+              variant="standard"
               fullWidth
               name="phone"
               value={userData.phone}
               onChange={handleChange}
               margin="normal"
-              autoComplete="off"
+              error={!!errors.phone}
+              helperText={errors.phone}
+              placeholder="Ej. 55 1234 5678 o +52 55 1234 5678"
             />
 
-            <FormControl fullWidth margin="normal">
+            <FormControl fullWidth margin="normal" error={!!errors.role}>
               <InputLabel>Rol</InputLabel>
               <Select
                 label="Rol"
+                variant="standard"
                 value={userData.role}
                 onChange={handleRoleChange}
                 name="role"
               >
                 {roles.map((role) => (
-                  <MenuItem key={role} value={role}>
-                    {role}
+                  <MenuItem
+                    key={role.value}
+                    value={role.value}
+                    sx={{
+                      "&:hover": {
+                        backgroundColor: "#CCC",
+                      },
+                    }}
+                  >
+                    {role.label}
                   </MenuItem>
                 ))}
               </Select>
+              {errors.role && (
+                <Typography variant="caption" color="error">
+                  {errors.role}
+                </Typography>
+              )}
             </FormControl>
 
-            <Box display="flex" justifyContent="center" mt={2}>
-              <Button variant="contained" color="primary" type="submit">
-                Registrar
-              </Button>
+            <Box display="flex" justifyContent="right" mt={2}>
               <Button
                 variant="outlined"
                 color="secondary"
                 onClick={handleClearFields}
-                sx={{ marginLeft: 2 }}
+                sx={{ marginRight: 2 }}
               >
                 Limpiar Campos
+              </Button>
+              <Button variant="contained" color="primary" type="submit">
+                Registrar
               </Button>
             </Box>
           </form>
