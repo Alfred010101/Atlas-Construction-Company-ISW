@@ -41,39 +41,39 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer>
     @Modifying
     @Transactional
     @Query(value = """
-            UPDATE employees 
-            SET first_name = :firstName,
-                last_name = :lastName,
-                phone = :phone,
-                role = :role,
-                password = :password
-            WHERE username = :username
-            """, nativeQuery = true)
+        UPDATE employees 
+        SET first_name = :firstName,
+            last_name = :lastName,
+            phone = :phone,
+            role = :role,
+            password = :password
+        WHERE username = :username
+        """, nativeQuery = true)
     int updateUserWithPassword(
-            @Param("firstName") String firstName,
-            @Param("lastName") String lastName,
-            @Param("phone") String phone,
-            @Param("role") Role role,
-            @Param("password") String password,
-            @Param("username") String username
+        @Param("username") String username,
+        @Param("firstName") String firstName,
+        @Param("lastName") String lastName,
+        @Param("phone") String phone,
+        @Param("role") Role role,
+        @Param("password") String password            
     );
 
     @Modifying
     @Transactional
     @Query(value = """
-            UPDATE employees 
-            SET first_name = :firstName,
-                last_name = :lastName,
-                phone = :phone,
-                role = :role
-            WHERE username = :username
-            """, nativeQuery = true)
+        UPDATE employees 
+        SET first_name = :firstName,
+            last_name = :lastName,
+            phone = :phone,
+            role = :role
+        WHERE username = :username
+        """, nativeQuery = true)
     int updateUserWithoutPassword(
-            @Param("firstName") String firstName,
-            @Param("lastName") String lastName,
-            @Param("phone") String phone,
-            @Param("role") Role role,
-            @Param("username") String username
+        @Param("username") String username,
+        @Param("firstName") String firstName,
+        @Param("lastName") String lastName,
+        @Param("phone") String phone,
+        @Param("role") Role role
     );
 
     @Transactional

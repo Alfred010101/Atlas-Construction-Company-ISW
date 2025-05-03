@@ -134,11 +134,13 @@ export const getEmployees = async ({
 interface HandleGetEmployeeProps {
   usernameToEdit: string;
   setEmployeeData: (value: React.SetStateAction<Employee>) => void;
+  handleSnackBar: (text: string, type: "success" | "error") => void;
 }
 
 export const getEmployee = async ({
   usernameToEdit,
   setEmployeeData,
+  handleSnackBar,
 }: HandleGetEmployeeProps) => {
   const token = localStorage.getItem("token");
   fetch(
@@ -165,27 +167,25 @@ export const getEmployee = async ({
       });
     })
     .catch((err) => {
-      console.error("Error fetching user:", err);
+      handleSnackBar(String(err), "error");
     });
 };
 
 interface HandleUpdateEmployeeProps {
   payload: Partial<EmployeeFull>;
-  handleSubmit: (
-    text: string,
-    type: "success" | "error",
-    refresh: boolean,
-    visble: boolean
-  ) => void;
+  handleSnackBar: (text: string, type: "success" | "error") => void;
   usernameToEdit: string | null;
+  refresh: () => void;
 }
 
 export const updateEmployee = async ({
   payload,
-  handleSubmit,
+  handleSnackBar,
   usernameToEdit,
+  refresh,
 }: HandleUpdateEmployeeProps) => {
   const token = localStorage.getItem("token");
+  console.log(payload);
   try {
     const response = await fetch(
       `http://localhost:8080/api/admin/v1/employees/update/${encodeURIComponent(
@@ -201,13 +201,15 @@ export const updateEmployee = async ({
       }
     );
 
+    const data = await response.json();
     if (!response.ok) {
-      throw new Error("");
+      throw new Error(data.error);
     }
 
-    handleSubmit("Empleado actualizado exitosamente!", "success", true, true);
+    handleSnackBar(data.message, "success");
+    refresh();
   } catch (error) {
-    handleSubmit("Error al actualizar al el empleado.", "error", false, true);
+    handleSnackBar(String(error), "error");
   }
 };
 

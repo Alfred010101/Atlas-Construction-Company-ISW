@@ -240,7 +240,8 @@ export default function Employees() {
             setOpenEditModal(false);
             setUsernameToEdit("");
           }}
-          handleSubmit={refreshFetchEmployees}
+          refresh={refreshFetchEmployees}
+          handleSnackBar={handleSnackBar}
           usernameToEdit={usernameToEdit}
         />
 

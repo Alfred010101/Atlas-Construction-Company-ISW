@@ -80,16 +80,25 @@ public class AdminEmployeeController
     }
 
     @PutMapping("/update/{username}")
-    public ResponseEntity<ApiResponse<String>> update(
+    public ResponseEntity<ObjectNode> update(
             @PathVariable("username") String username,
             @RequestBody Employee updateRequest) 
     {
+        ObjectNode json = objectMapper.createObjectNode();
         try {
-            employeeService.updateUser(username, updateRequest);
-            return ResponseEntity.ok(new ApiResponse<>("Empleado actualizado correctamente.", null));
+            if(employeeService.updateUser(username, updateRequest)> 0)  
+            {      
+                json.put("message", "Empleado actualizado correctamente.");
+                return ResponseEntity.ok(json);
+            }else
+            {
+                json.put("error", "Error al actualizar empleado.");
+                return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(json);
+            }
         } catch (Exception e) {
+            json.put("error", "Error al actualizar empleado: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse<>("Error al actualizar empleado: " + e.getMessage(), null));
+                    .body(json);
         }
     }
 

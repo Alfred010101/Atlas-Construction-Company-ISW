@@ -66,24 +66,38 @@ public class EmployeeService
         return employeeRepository.findAllAsList();
     }
 
-    public void updateUser(String username, Employee request) 
+    public int updateUser(String username, Employee request) 
     {
-        if (request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
-            employeeRepository.updateUserWithPassword(
-                    request.getFirstName(),
-                    request.getLastName(),
-                    request.getPhone(),
-                    request.getRole(),
-                    new BCryptPasswordEncoder().encode(request.getPassword()),
-                    username
+        if(request == null) 
+        {
+            throw new IllegalArgumentException("Todos los campos son requeridos");
+        }
+
+        Validations.validateName(request.getFirstName());
+        Validations.validateName(request.getLastName());
+        Validations.validatePhoneMX(request.getPhone());
+        Validations.validateRole(request.getRole());
+
+        if (request.getPassword() != null && !request.getPassword().trim().isEmpty()) 
+        {
+            Validations.validatePassword(request.getPassword());
+            return employeeRepository.updateUserWithPassword(
+                username,
+                request.getFirstName(),
+                request.getLastName(),
+                request.getPhone(),
+                request.getRole(),
+                new BCryptPasswordEncoder().encode(request.getPassword())                    
             );
-        } else {
-            employeeRepository.updateUserWithoutPassword(
-                    request.getFirstName(),
-                    request.getLastName(),
-                    request.getPhone(),
-                    request.getRole(),
-                    username
+        } else 
+        {
+            return employeeRepository.updateUserWithoutPassword(
+                username,
+                request.getFirstName(),
+                request.getLastName(),
+                request.getPhone(),
+                request.getRole()
+                    
             );
         }
     }

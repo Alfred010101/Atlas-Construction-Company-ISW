@@ -27,19 +27,16 @@ interface EditEmployeeModalProps {
   open: boolean;
   usernameToEdit: string | null;
   handleClose: () => void;
-  handleSubmit: (
-    text: string,
-    type: "success" | "error",
-    refresh: boolean,
-    visble: boolean
-  ) => void;
+  refresh: () => void;
+  handleSnackBar: (text: string, type: "success" | "error") => void;
 }
 
 const EditEmployee = ({
   open,
   usernameToEdit,
   handleClose,
-  handleSubmit,
+  refresh,
+  handleSnackBar,
 }: EditEmployeeModalProps) => {
   const [employeeData, setEmployeeData] = useState<Employee>({
     employeeFirstName: "",
@@ -61,7 +58,7 @@ const EditEmployee = ({
 
   useEffect(() => {
     if (usernameToEdit) {
-      getEmployee({ usernameToEdit, setEmployeeData });
+      getEmployee({ usernameToEdit, setEmployeeData, handleSnackBar });
     }
   }, [usernameToEdit]);
 
@@ -133,7 +130,7 @@ const EditEmployee = ({
     e.preventDefault();
 
     if (!validateForm()) {
-      handleSubmit("Porfavor ingrese datos validos", "error", false, true);
+      handleSnackBar("Porfavor ingrese datos validos", "error");
       return;
     }
 
@@ -148,8 +145,7 @@ const EditEmployee = ({
       payload.password = employeeData.password;
     }
 
-    updateEmployee({ handleSubmit, payload, usernameToEdit });
-
+    updateEmployee({ handleSnackBar, payload, usernameToEdit, refresh });
     handleClose();
   };
 
