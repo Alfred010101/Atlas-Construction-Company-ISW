@@ -4,13 +4,14 @@ import com.back_constructora.model.Role;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL) 
-public interface AllUsersDTO 
+public interface EmployeeDTO 
 {
-    Integer getId();
-    String getFirstName();
-    String getLastName(); 
+    Integer getEmployeeId();
+    String getEmployeeFirstName();
+    String getEmployeeLastName(); 
+    String getEmployeeFullName();
     String getUsername();
     String getPassword();
-    String getPhone();
+    String getEmployeePhone();
     Role getRole();
 }

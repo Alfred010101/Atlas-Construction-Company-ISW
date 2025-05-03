@@ -3,8 +3,8 @@ package com.back_constructora.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.back_constructora.model.User;
-import com.back_constructora.service.UserService;
+import com.back_constructora.model.Employee;
+import com.back_constructora.service.EmployeeService;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,12 +22,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService;
+    private final EmployeeService userService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<User>> createUser(@Validated @RequestBody User user) 
+    public ResponseEntity<ApiResponse<Employee>> createUser(@Validated @RequestBody Employee user) 
     {
-        User savedUser = userService.save(user);
+        Employee savedUser = userService.save(user);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(new ApiResponse<>("Usuario creado satisfactoriamente", savedUser));

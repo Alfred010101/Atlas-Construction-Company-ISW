@@ -27,33 +27,33 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 @Table(
-    name = "users", 
+    name = "employees", 
     uniqueConstraints = {
         @UniqueConstraint(
             columnNames = {"username"}
         )
-    })
-
-public class User implements UserDetails
+    }
+)
+public class Employee implements UserDetails
 {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "first_name", nullable = false, length = 100)
+    @Column(name = "first_name", nullable = false, length = 50)
     private String firstName;
 
-    @Column(name = "last_name", nullable = false, length = 100)
+    @Column(name = "last_name", nullable = false, length = 50)
     private String lastName;
 
-    @Column(name = "email", nullable = false, unique = true, length = 63)
+    @Column(name = "username", nullable = false, unique = true, length = 31)
     private String username;
 
     @Column(name = "`password`", nullable = false, length = 100)
     private String password;
 
-    @Column(name = "phone", nullable = false, length = 20)
+    @Column(name = "phone", nullable = false, length = 10)
     private String phone;
 
     @Enumerated(EnumType.STRING)

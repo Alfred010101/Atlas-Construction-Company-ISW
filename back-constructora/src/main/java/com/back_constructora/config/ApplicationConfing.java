@@ -11,7 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.back_constructora.repository.UserRepository;
+import com.back_constructora.repository.EmployeeRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 public class ApplicationConfing 
 {
 
-    private final UserRepository userRepository;
+    private final EmployeeRepository employeeRepository;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception
@@ -46,7 +46,7 @@ public class ApplicationConfing
     @Bean
     public UserDetailsService userDetailService() 
     {
-        return username -> userRepository.findByUsername(username)
+        return username -> employeeRepository.findByUsername(username)
             .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 }

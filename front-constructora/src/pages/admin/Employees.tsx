@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -33,122 +33,62 @@ import {
   DialogContentText,
   DialogActions,
 } from "@mui/material";
-
-interface Employee {
-  name: string;
-  email: string;
-  phone: string;
-  role: string;
-}
+import { roles } from "../../utils/varConst";
+import { getEmployees, handleDeleteEmployee } from "../../request/Employee";
+import { Employee } from "../../interfaces/ModelsTypes";
 
 export default function Employees() {
   const { navItems } = useMenuConfig();
+  const { isAuthenticated } = useAuth();
+
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterDepartment, setFilterDepartment] = useState("");
-  const [openDialog, setOpenDialog] = useState(false);
+
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
     "success"
   );
 
-  const [openEditDialog, setOpenEditDialog] = useState(false);
-  const [emailToEdit, setEmailToEdit] = useState<string | null>(null);
+  const [openCreateModal, setOpenCreateModal] = useState(false);
+
+  const [openEditModal, setOpenEditModal] = useState(false);
+  const [usernameToEdit, setUsernameToEdit] = useState<string | null>(null);
 
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [emailToDelete, setEmailToDelete] = useState<string | null>(null);
-
-  const { isAuthenticated } = useAuth();
-
-  const handleDeleteEmployee = async () => {
-    try {
-      if (!emailToDelete) return;
-
-      const token = localStorage.getItem("token");
-
-      const response = await fetch(
-        `http://localhost:8080/api/v1/admin/deleteUser/${emailToDelete}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Error al eliminar el empleado.");
-      }
-
-      setSnackbarOpen(true);
-      setOpenDeleteDialog(false);
-      refreshFetchEmployees("Empleado eliminado exitosamente!", "success");
-    } catch (error) {
-      console.error(error);
-      setSnackbarMessage("Error al eliminar el empleado.");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
-    }
-  };
-
-  const fetchEmployees = useCallback(async () => {
-    try {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        console.error("Token no disponible.");
-        return;
-      }
-
-      const response = await fetch(
-        "http://localhost:8080/api/v1/admin/allUsers",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Error al obtener los empleados.");
-      }
-
-      const data = await response.json();
-
-      const employeesData = data.data.map((user: any) => ({
-        name: `${user.firstName} ${user.lastName}`,
-        email: user.username,
-        phone: user.phone,
-        role: user.role,
-      }));
-
-      setEmployees(employeesData);
-      setSnackbarOpen(true);
-    } catch (error) {
-      console.error("Error fetching employees:", error);
-    }
-  }, []);
+  const [usernameToDelete, setUsernameToDelete] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchEmployees();
-    refreshFetchEmployees("Empleados cargados exitosamente!", "success");
-  }, [fetchEmployees]);
+    //getEmployees({ setEmployees, setSnackbarOpen });
+    refreshFetchEmployees(
+      "Empleados cargados exitosamente!",
+      "success",
+      true,
+      true
+    );
+  }, []);
 
-  const refreshFetchEmployees = (text: string, type: "success" | "error") => {
-    fetchEmployees();
+  const refreshFetchEmployees = (
+    text: string,
+    type: "success" | "error",
+    refresh: boolean,
+    visble: boolean
+  ) => {
+    if (refresh) {
+      getEmployees({ setEmployees, setSnackbarOpen });
+    }
     setSnackbarMessage(text);
     setSnackbarSeverity(type);
+    setSnackbarOpen(visble);
   };
 
   const filteredEmployees = employees.filter((emp) => {
     return (
-      (emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        emp.role.toLowerCase().includes(searchTerm.toLowerCase())) &&
+      (emp.employeeFullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        emp.role?.toLowerCase().includes(searchTerm.toLowerCase())) &&
       (filterDepartment
-        ? emp.role.toLowerCase() === filterDepartment.toLowerCase()
+        ? emp.role?.toLowerCase() === filterDepartment.toLowerCase()
         : true)
     );
   });
@@ -156,6 +96,11 @@ export default function Employees() {
   if (!isAuthenticated) {
     return <Typography>No autorizado. Por favor, inicie sesión.</Typography>;
   }
+
+  const getRoleLabel = (roleValue: string) => {
+    const role = roles.find((item) => item.value === roleValue);
+    return role ? role.label : roleValue;
+  };
 
   return (
     <Dashboard navItems={navItems}>
@@ -210,7 +155,9 @@ export default function Employees() {
               onClick={() => {
                 refreshFetchEmployees(
                   "Empleados recargados exitosamente!",
-                  "success"
+                  "success",
+                  true,
+                  true
                 );
               }}
             >
@@ -220,7 +167,7 @@ export default function Employees() {
             <Button
               variant="contained"
               startIcon={<Add />}
-              onClick={() => setOpenDialog(true)}
+              onClick={() => setOpenCreateModal(true)}
             >
               Agregar empleado
             </Button>
@@ -242,16 +189,16 @@ export default function Employees() {
             <TableBody>
               {filteredEmployees.map((employee, index) => (
                 <TableRow key={index}>
-                  <TableCell>{employee.name}</TableCell>
-                  <TableCell>{employee.email}</TableCell>
-                  <TableCell>{employee.phone}</TableCell>
-                  <TableCell>{employee.role}</TableCell>
+                  <TableCell>{employee.employeeFullName}</TableCell>
+                  <TableCell>{employee.username}</TableCell>
+                  <TableCell>{employee.employeePhone}</TableCell>
+                  <TableCell>{getRoleLabel(employee.role || "")}</TableCell>
                   <TableCell align="right">
                     <IconButton
                       color="primary"
                       onClick={() => {
-                        setEmailToEdit(employee.email);
-                        setOpenEditDialog(true);
+                        setUsernameToEdit(employee.username || "");
+                        setOpenEditModal(true);
                       }}
                     >
                       <Edit />
@@ -259,7 +206,7 @@ export default function Employees() {
                     <IconButton
                       color="error"
                       onClick={() => {
-                        setEmailToDelete(employee.email);
+                        setUsernameToDelete(employee.username || "");
                         setOpenDeleteDialog(true);
                       }}
                     >
@@ -273,24 +220,19 @@ export default function Employees() {
         </TableContainer>
 
         <RegisterEmployeeModal
-          open={openDialog}
-          handleClose={() => setOpenDialog(false)}
+          open={openCreateModal}
+          handleClose={() => setOpenCreateModal(false)}
           handleSubmit={refreshFetchEmployees}
         />
 
         <EditEmployeeModal
-          open={openEditDialog}
-          emailToEdit={emailToEdit}
-          onClose={() => setOpenEditDialog(false)}
-          onSave={() => {
-            refreshFetchEmployees(
-              "Empleado actualizado exitosamente!",
-              "success"
-            );
-            setOpenEditDialog(false);
-          }}
+          open={openEditModal}
+          handleClose={() => setOpenEditModal(false)}
+          handleSubmit={refreshFetchEmployees}
+          usernameToEdit={usernameToEdit}
         />
 
+        {/* Dialog para eliminar */}
         <Dialog
           open={openDeleteDialog}
           onClose={() => setOpenDeleteDialog(false)}
@@ -303,13 +245,23 @@ export default function Employees() {
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setOpenDeleteDialog(false)}>Cancelar</Button>
-            <Button color="error" onClick={handleDeleteEmployee}>
+            <Button
+              color="error"
+              onClick={() => {
+                handleDeleteEmployee({
+                  usernameToDelete,
+                  setOpenDeleteDialog,
+                  setSnackbarOpen,
+                  refreshFetchEmployees,
+                });
+              }}
+            >
               Eliminar
             </Button>
           </DialogActions>
         </Dialog>
 
-        {/* Snackbar de confirmación */}
+        {/* Snackbar de log */}
         <Snackbar
           open={snackbarOpen}
           autoHideDuration={3000}

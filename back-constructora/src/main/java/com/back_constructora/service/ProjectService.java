@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.back_constructora.dto.ProjectsDTO;
+import com.back_constructora.dto.ProjectDTO;
 import com.back_constructora.model.Project;
 import com.back_constructora.repository.ProjectRepository;
 
@@ -25,7 +25,7 @@ public class ProjectService
         return projectRepository.save(project);
     }
 
-    public Optional<List<ProjectsDTO>> findAllAsList() 
+    public Optional<List<ProjectDTO>> findAllAsList() 
     {
         return projectRepository.findAllAsList() ;
     }

@@ -5,9 +5,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL) 
 public interface CustomerDTO 
 {
-    Integer getId();
-    String getFirstName();
-    String getLastName(); 
-    String getAddress();
-    String getPhone();
+    Integer getCustomerId();
+    String getCustomerFirstName();
+    String getCustomerLastName(); 
+    String getCustomerFullName();
+    String getCustomerAddress();
+    String getCustomerPhone();
 } 

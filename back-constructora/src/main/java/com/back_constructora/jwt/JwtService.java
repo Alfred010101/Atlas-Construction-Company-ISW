@@ -9,7 +9,7 @@ import java.util.function.Function;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import com.back_constructora.model.User;
+import com.back_constructora.model.Employee;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -32,7 +32,7 @@ public class JwtService
         Date now = new Date();
         Date expiration = new Date(now.getTime() + 1000 * 60 * 60 * 24);
 
-        extraClaims.put("role", ((User)user).getRole().name());
+        extraClaims.put("role", ((Employee)user).getRole().name());
 
         return Jwts
             .builder()

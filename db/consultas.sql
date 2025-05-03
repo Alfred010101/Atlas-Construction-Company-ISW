@@ -1,4 +1,6 @@
-SELECT * FROM construction_company.users;
+SELECT * FROM construction_company.employees;
+
+SELECT * FROM construction_company.roles;
 
 SELECT * FROM construction_company.customers;
 
@@ -23,3 +25,11 @@ INNER JOIN
 	construction_company.customers c ON p.fk_customer = c.id
 INNER JOIN 
 	construction_company.users e ON p.fk_supervisor = e.id;
+    
+DROP TABLE construction_company.roles;
+
+DROP DATABASE construction_company;
+
+UPDATE construction_company.users
+SET `password` = '$2a$10$MOgQTPZZ0Wfeb5psizIKkO1bNzEV.hYDSL1LWFmMq1ocVw6N2SnoO'
+WHERE email = 'root2@root.com';

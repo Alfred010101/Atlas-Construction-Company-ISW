@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import com.back_constructora.jwt.JwtService;
-import com.back_constructora.repository.UserRepository;
+import com.back_constructora.repository.EmployeeRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthService 
 {
 
-    private final UserRepository userRepository;
+    private final EmployeeRepository employeeRepository;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
@@ -32,10 +32,10 @@ public class AuthService
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales incorrectas");
         }
 
-        UserDetails user = userRepository.findByUsername(request.getUsername()).orElseThrow();
+        UserDetails employee = employeeRepository.findByUsername(request.getUsername()).orElseThrow();
 
         return ResponseEntity.ok(AuthResponse.builder()
-            .token(jwtService.getToken(user))
+            .token(jwtService.getToken(employee))
             .build()
         );
     }

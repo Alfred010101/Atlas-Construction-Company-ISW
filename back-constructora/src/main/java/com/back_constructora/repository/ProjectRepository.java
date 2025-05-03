@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import com.back_constructora.dto.ProjectsDTO;
+import com.back_constructora.dto.ProjectDTO;
 import com.back_constructora.model.Project;
 
 @Repository
@@ -16,22 +16,22 @@ public interface ProjectRepository extends JpaRepository<Project, Integer>
 
     @Query(value = """
         SELECT 
-            p.id,
-            p.name AS name,
-            p.address,
-            p.start_date AS startDate,
-            p.end_date AS endDate,
+            p.id AS projectId,
+            p.name AS projectName,
+            p.address As projectAddress,
+            p.start_date AS projectStartDate,
+            p.end_date AS projectEndDate,
             c.id AS customerId,
             CONCAT(c.first_name, ' ', c.last_name) AS customerName,
             e.id AS supervisorId,
-            CONCAT(e.first_name, ' ', e.last_name) AS supervisorName
+            CONCAT(e.first_name, ' ', e.last_name) AS employeeName
         FROM 
             projects p
         INNER JOIN 
             customers c ON p.fk_customer = c.id
         INNER JOIN 
-            users e ON p.fk_supervisor = e.id;
+            employees e ON p.fk_supervisor = e.id;
         """, nativeQuery = true)
-    Optional<List<ProjectsDTO>> findAllAsList();
+    Optional<List<ProjectDTO>> findAllAsList();
     
 }

@@ -10,46 +10,44 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.back_constructora.dto.AllUsersDTO;
-import com.back_constructora.dto.UserDTO;
+import com.back_constructora.dto.EmployeeDTO;
 import com.back_constructora.model.Role;
-import com.back_constructora.model.User;
+import com.back_constructora.model.Employee;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Integer> 
+public interface EmployeeRepository extends JpaRepository<Employee, Integer> 
 {
-    Optional<User> findByUsername(String username);
+    @Query(value = """
+        SELECT * FROM employees
+        WHERE username = :username
+        """, nativeQuery = true)
+    Optional<Employee> findByUsername(@Param("username") String username);
+    //Optional<Employee> findByUsername(String username);
     boolean existsByUsername(String username);  
-    
-    @Query(value = """
-        SELECT * FROM users
-        WHERE email = :email
-        """, nativeQuery = true)
-    Optional<User> findByEmail(@Param("email") String email);
 
     @Query(value = """
-        SELECT first_name AS firstName, last_name AS lastName, email AS username, phone, role
-        FROM users;
+        SELECT CONCAT(first_name, ' ', last_name) AS employeeFullName, username, phone AS employeePhone, role
+        FROM employees;
         """, nativeQuery = true)
-    Optional<List<AllUsersDTO>> findAllAsList();
+    Optional<List<EmployeeDTO>> findAllAsList();
 
     @Query(value = """
-        SELECT first_name AS firstName, last_name AS lastName, email AS username, phone, role
-        FROM users
-        WHERE email = :email;
+        SELECT first_name AS firstName, last_name AS lastName, username, phone, role
+        FROM employees
+        WHERE username = :username;
         """, nativeQuery = true)
-    Optional<AllUsersDTO> findEployeeByEmailAllProps(@Param("email") String email);
+    Optional<EmployeeDTO> findEmployeeByUsernameAllProps(@Param("username") String username);
 
     @Modifying
     @Transactional
     @Query(value = """
-            UPDATE users 
+            UPDATE employees 
             SET first_name = :firstName,
                 last_name = :lastName,
                 phone = :phone,
                 role = :role,
                 password = :password
-            WHERE email = :email
+            WHERE username = :username
             """, nativeQuery = true)
     void updateUserWithPassword(
             @Param("firstName") String firstName,
@@ -57,39 +55,39 @@ public interface UserRepository extends JpaRepository<User, Integer>
             @Param("phone") String phone,
             @Param("role") Role role,
             @Param("password") String password,
-            @Param("email") String email
+            @Param("username") String username
     );
 
     @Modifying
     @Transactional
     @Query(value = """
-            UPDATE users 
+            UPDATE employees 
             SET first_name = :firstName,
                 last_name = :lastName,
                 phone = :phone,
                 role = :role
-            WHERE email = :email
+            WHERE username = :username
             """, nativeQuery = true)
     void updateUserWithoutPassword(
             @Param("firstName") String firstName,
             @Param("lastName") String lastName,
             @Param("phone") String phone,
             @Param("role") Role role,
-            @Param("email") String email
+            @Param("username") String username
     );
 
     @Transactional
     @Modifying
     @Query(value = """
-        DELETE FROM users 
-        WHERE email = :email
+        DELETE FROM employees 
+        WHERE username = :username
         """, nativeQuery = true)
-    void deleteByEmail(@Param("email") String email);
+    void deleteByUsername(@Param("username") String username);
 
     @Query(value = """
         SELECT id, first_name AS firstName, last_name AS lastName
-        FROM users
+        FROM employees
         WHERE role = 'CONSTRUCTION_SUPERVISOR';
         """, nativeQuery = true)
-    Optional<List<UserDTO>> getSuperviFullNameDto();
+    Optional<List<EmployeeDTO>> getSuperviFullNameDto();
 }

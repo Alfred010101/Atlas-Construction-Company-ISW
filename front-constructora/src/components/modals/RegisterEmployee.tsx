@@ -11,7 +11,6 @@ import {
   FormControl,
   SelectChangeEvent,
 } from "@mui/material";
-import { Snackbar, Alert } from "@mui/material";
 import {
   validateName,
   validateUsername,
@@ -21,11 +20,26 @@ import {
 } from "./../../utils/validations";
 
 import { roles } from "./../../utils/varConst";
+import { saveEmployee } from "../../request/Employee";
+import { Employee as EmployeeFull } from "../../interfaces/models/Models";
 
-const RegisterEmployee = ({ open, handleClose, handleSubmit }: any) => {
-  const [openSnackbar, setOpenSnackbar] = useState(false);
+interface RegisterEmployeeModalProps {
+  open: boolean;
+  handleClose: () => void;
+  handleSubmit: (
+    text: string,
+    type: "success" | "error",
+    refresh: boolean,
+    visble: boolean
+  ) => void;
+}
 
-  const [userData, setUserData] = useState({
+const RegisterEmployee = ({
+  open,
+  handleClose,
+  handleSubmit,
+}: RegisterEmployeeModalProps) => {
+  const [employeeData, setEmployeeData] = useState<EmployeeFull>({
     firstName: "",
     lastName: "",
     username: "",
@@ -47,8 +61,8 @@ const RegisterEmployee = ({ open, handleClose, handleSubmit }: any) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
-    setUserData({
-      ...userData,
+    setEmployeeData({
+      ...employeeData,
       [name]: value,
     });
 
@@ -77,10 +91,10 @@ const RegisterEmployee = ({ open, handleClose, handleSubmit }: any) => {
 
   // Validación en tiempo real
   const handleRoleChange = (e: SelectChangeEvent<string>) => {
-    const value = e.target.value;
-    setUserData({
-      ...userData,
-      role: value,
+    const { name, value } = e.target;
+    setEmployeeData({
+      ...employeeData,
+      [name]: value,
     });
 
     setErrors({
@@ -91,12 +105,12 @@ const RegisterEmployee = ({ open, handleClose, handleSubmit }: any) => {
 
   const validateForm = () => {
     const newErrors = {
-      firstName: validateName(userData.firstName),
-      lastName: validateName(userData.lastName),
-      username: validateUsername(userData.username),
-      password: validatePassword(userData.password),
-      phone: validatePhoneMX(userData.phone),
-      role: validateRole(userData.role),
+      firstName: validateName(employeeData.firstName),
+      lastName: validateName(employeeData.lastName),
+      username: validateUsername(employeeData.username),
+      password: validatePassword(employeeData.password),
+      phone: validatePhoneMX(employeeData.phone),
+      role: validateRole(employeeData.role),
     };
 
     setErrors(newErrors);
@@ -111,49 +125,13 @@ const RegisterEmployee = ({ open, handleClose, handleSubmit }: any) => {
       return;
     }
 
-    try {
-      const token = localStorage.getItem("token");
+    saveEmployee({ handleClearFields, handleSubmit, employeeData });
 
-      if (!token) {
-        console.error("Token no disponible");
-        return;
-      }
-
-      const response = await fetch(
-        "http://localhost:8080/api/v1/admin/registerUser",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(userData),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Error al registrar el empleado.");
-      }
-
-      const result = await response.json();
-      console.log("Empleado registrado:", result);
-
-      handleSubmit("Empleado registrado exitosamente!", "success");
-      handleClearFields();
-      handleClose();
-      setOpenSnackbar(true);
-    } catch (error) {
-      handleSubmit(
-        "Error registrando empleado: ".concat(String(error)),
-        "error"
-      );
-      handleClose();
-      setOpenSnackbar(true);
-    }
+    handleClose();
   };
 
   const handleClearFields = () => {
-    setUserData({
+    setEmployeeData({
       firstName: "",
       lastName: "",
       username: "",
@@ -196,7 +174,7 @@ const RegisterEmployee = ({ open, handleClose, handleSubmit }: any) => {
               variant="standard"
               fullWidth
               name="firstName"
-              value={userData.firstName}
+              value={employeeData.firstName}
               onChange={handleChange}
               margin="normal"
               error={!!errors.firstName}
@@ -208,7 +186,7 @@ const RegisterEmployee = ({ open, handleClose, handleSubmit }: any) => {
               variant="standard"
               fullWidth
               name="lastName"
-              value={userData.lastName}
+              value={employeeData.lastName}
               onChange={handleChange}
               margin="normal"
               error={!!errors.lastName}
@@ -220,7 +198,7 @@ const RegisterEmployee = ({ open, handleClose, handleSubmit }: any) => {
               variant="standard"
               fullWidth
               name="username"
-              value={userData.username}
+              value={employeeData.username}
               onChange={handleChange}
               margin="normal"
               error={!!errors.username}
@@ -233,7 +211,7 @@ const RegisterEmployee = ({ open, handleClose, handleSubmit }: any) => {
               fullWidth
               name="password"
               type="password"
-              value={userData.password}
+              value={employeeData.password}
               onChange={handleChange}
               margin="normal"
               error={!!errors.password}
@@ -245,7 +223,7 @@ const RegisterEmployee = ({ open, handleClose, handleSubmit }: any) => {
               variant="standard"
               fullWidth
               name="phone"
-              value={userData.phone}
+              value={employeeData.phone}
               onChange={handleChange}
               margin="normal"
               error={!!errors.phone}
@@ -258,7 +236,7 @@ const RegisterEmployee = ({ open, handleClose, handleSubmit }: any) => {
               <Select
                 label="Rol"
                 variant="standard"
-                value={userData.role}
+                value={employeeData.role}
                 onChange={handleRoleChange}
                 name="role"
               >
@@ -299,21 +277,6 @@ const RegisterEmployee = ({ open, handleClose, handleSubmit }: any) => {
           </form>
         </Box>
       </Modal>
-
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={3000}
-        onClose={() => setOpenSnackbar(false)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert
-          onClose={() => setOpenSnackbar(false)}
-          severity="success"
-          sx={{ width: "100%" }}
-        >
-          ¡Empleado registrado correctamente!
-        </Alert>
-      </Snackbar>
     </>
   );
 };

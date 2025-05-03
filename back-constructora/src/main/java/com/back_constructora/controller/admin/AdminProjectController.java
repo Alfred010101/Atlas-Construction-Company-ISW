@@ -16,7 +16,7 @@ import com.back_constructora.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/admin/projects")
+@RequestMapping("/api/admin/v1/projects")
 @RequiredArgsConstructor
 public class AdminProjectController 
 {
@@ -31,10 +31,10 @@ public class AdminProjectController
                 .body(new ApiResponse<>("Proyecto creado satisfactoriamente", savedProject));
     }
 
-    @GetMapping("/allProjects")
-    public ResponseEntity<ApiResponse<?>> getAllCustomers() {
+    @GetMapping("/all")
+    public ResponseEntity<ApiResponse<?>> findAll() {
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(new ApiResponse<>("Todos los clientes disponibles", projectService.findAllAsList()));
+            .body(new ApiResponse<>("Todos los proyectos disponibles", projectService.findAllAsList()));
     }
 }

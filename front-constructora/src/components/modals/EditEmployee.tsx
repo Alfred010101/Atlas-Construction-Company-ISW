@@ -11,6 +11,7 @@ import {
   MenuItem,
   SelectChangeEvent,
 } from "@mui/material";
+import { roles } from "./../../utils/varConst";
 
 interface User {
   firstName: string;
@@ -21,27 +22,24 @@ interface User {
   role: string;
 }
 
-interface EditUserModalProps {
+interface EditEmployeeModalProps {
   open: boolean;
-  emailToEdit: string | null;
-  onClose: () => void;
-  onSave: () => void;
+  usernameToEdit: string | null;
+  handleClose: () => void;
+  handleSubmit: (
+    text: string,
+    type: "success" | "error",
+    refresh: boolean,
+    visble: boolean
+  ) => void;
 }
-
-const roles = [
-  "SYS_ADMIN",
-  "RESOURCE_MANAGER",
-  "CONSTRUCTION_SUPERVISOR",
-  "WAREHOUSE_SUPERVISOR",
-  "CEO",
-];
 
 const EditEmployee = ({
   open,
-  emailToEdit,
-  onClose,
-  onSave,
-}: EditUserModalProps) => {
+  usernameToEdit,
+  handleClose,
+  handleSubmit,
+}: EditEmployeeModalProps) => {
   const [user, setUser] = useState<User>({
     firstName: "",
     lastName: "",
@@ -52,11 +50,11 @@ const EditEmployee = ({
   });
 
   useEffect(() => {
-    if (emailToEdit) {
+    if (usernameToEdit) {
       const token = localStorage.getItem("token");
       fetch(
         `http://localhost:8080/api/v1/admin/findUser/${encodeURIComponent(
-          emailToEdit
+          usernameToEdit
         )}`,
         {
           method: "GET",
@@ -81,7 +79,7 @@ const EditEmployee = ({
           console.error("Error fetching user:", err);
         });
     }
-  }, [emailToEdit]);
+  }, [usernameToEdit]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -123,16 +121,15 @@ const EditEmployee = ({
       if (!response.ok) {
         throw new Error("Error updating user");
       }
-
-      onSave();
-      onClose();
+      handleSubmit("Empleado actualizado exitosamente!", "success", true, true);
+      handleClose();
     } catch (error) {
       console.error("Error updating user:", error);
     }
   };
 
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal open={open} onClose={handleClose}>
       <Box
         sx={{
           position: "absolute",
@@ -141,95 +138,106 @@ const EditEmployee = ({
           transform: "translate(-50%, -50%)",
           backgroundColor: "white",
           padding: 3,
-          borderRadius: 2,
+          borderRadius: 5,
           width: 650,
         }}
       >
-        <Typography variant="h6" mb={2} textAlign="center">
-          Editar Usuario
-        </Typography>
+        <form onSubmit={handleSave} autoComplete="off">
+          <Typography variant="h6" mb={2} textAlign="center">
+            Editar Usuario
+          </Typography>
 
-        <TextField
-          label="Correo Electrónico"
-          variant="outlined"
-          fullWidth
-          name="username"
-          value={user.username}
-          margin="normal"
-          disabled
-        />
+          <TextField
+            label="Correo Electrónico"
+            variant="standard"
+            fullWidth
+            name="username"
+            value={user.username}
+            margin="normal"
+            disabled
+          />
 
-        <TextField
-          label="Nombre(s)"
-          variant="outlined"
-          fullWidth
-          name="firstName"
-          value={user.firstName}
-          onChange={handleChange}
-          margin="normal"
-        />
+          <TextField
+            label="Nombre(s)"
+            variant="standard"
+            fullWidth
+            name="firstName"
+            value={user.firstName}
+            onChange={handleChange}
+            margin="normal"
+          />
 
-        <TextField
-          label="Apellido(s)"
-          variant="outlined"
-          fullWidth
-          name="lastName"
-          value={user.lastName}
-          onChange={handleChange}
-          margin="normal"
-        />
+          <TextField
+            label="Apellido(s)"
+            variant="standard"
+            fullWidth
+            name="lastName"
+            value={user.lastName}
+            onChange={handleChange}
+            margin="normal"
+          />
 
-        <TextField
-          label="Teléfono"
-          variant="outlined"
-          fullWidth
-          name="phone"
-          value={user.phone}
-          onChange={handleChange}
-          margin="normal"
-        />
+          <TextField
+            label="Contraseña"
+            variant="standard"
+            fullWidth
+            name="password"
+            type="password"
+            value={user.password}
+            onChange={handleChange}
+            margin="normal"
+            helperText="Deja vacío si no deseas cambiarla"
+          />
 
-        <FormControl fullWidth margin="normal">
-          <InputLabel>Rol</InputLabel>
-          <Select
-            label="Rol"
-            value={user.role}
-            onChange={handleRoleChange}
-            name="role"
-          >
-            {roles.map((role) => (
-              <MenuItem key={role} value={role}>
-                {role}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+          <TextField
+            label="Teléfono"
+            variant="standard"
+            fullWidth
+            name="phone"
+            value={user.phone}
+            onChange={handleChange}
+            margin="normal"
+          />
 
-        <TextField
-          label="Contraseña"
-          variant="outlined"
-          fullWidth
-          name="password"
-          type="password"
-          value={user.password}
-          onChange={handleChange}
-          margin="normal"
-          helperText="Deja vacío si no deseas cambiarla"
-        />
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Rol</InputLabel>
+            <Select
+              label="Rol"
+              value={user.role}
+              variant="standard"
+              onChange={handleRoleChange}
+              name="role"
+            >
+              {roles.map((role) => (
+                <MenuItem
+                  key={role.value}
+                  value={role.value}
+                  sx={{
+                    "&:hover": {
+                      backgroundColor: "#CCC",
+                    },
+                  }}
+                >
+                  {role.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
 
-        <Box display="flex" justifyContent="center" mt={2}>
-          <Button variant="contained" color="primary" onClick={handleSave}>
-            Guardar
-          </Button>
-          <Button
-            variant="outlined"
-            color="secondary"
-            onClick={onClose}
-            sx={{ marginLeft: 2 }}
-          >
-            Cancelar
-          </Button>
-        </Box>
+          <Box display="flex" justifyContent="right" mt={2}>
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={handleClose}
+              sx={{ marginRight: 2 }}
+            >
+              Cancelar
+            </Button>
+            <Button variant="contained" color="primary" type="submit">
+              Guardar
+            </Button>
+          </Box>
+        </form>
       </Box>
     </Modal>
   );
