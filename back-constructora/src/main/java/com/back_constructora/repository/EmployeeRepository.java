@@ -32,11 +32,11 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer>
     Optional<List<EmployeeDTO>> findAllAsList();
 
     @Query(value = """
-        SELECT first_name AS firstName, last_name AS lastName, username, phone, role
+        SELECT first_name AS employeeFirstName, last_name AS employeeLastName, username, phone AS employeePhone, role
         FROM employees
         WHERE username = :username;
         """, nativeQuery = true)
-    Optional<EmployeeDTO> findEmployeeByUsernameAllProps(@Param("username") String username);
+    Optional<EmployeeDTO> findByUsernameAllProps(@Param("username") String username);
 
     @Modifying
     @Transactional
@@ -49,7 +49,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer>
                 password = :password
             WHERE username = :username
             """, nativeQuery = true)
-    void updateUserWithPassword(
+    int updateUserWithPassword(
             @Param("firstName") String firstName,
             @Param("lastName") String lastName,
             @Param("phone") String phone,
@@ -68,7 +68,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer>
                 role = :role
             WHERE username = :username
             """, nativeQuery = true)
-    void updateUserWithoutPassword(
+    int updateUserWithoutPassword(
             @Param("firstName") String firstName,
             @Param("lastName") String lastName,
             @Param("phone") String phone,

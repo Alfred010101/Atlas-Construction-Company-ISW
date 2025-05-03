@@ -44,7 +44,7 @@ public class EmployeeService
 
     public Optional<EmployeeDTO> findByUsernameAllProps(String username)
     {
-        return employeeRepository.findEmployeeByUsernameAllProps(username);
+        return employeeRepository.findByUsernameAllProps(username);
     }
 
     public Optional<Employee> findByUserName(String username)

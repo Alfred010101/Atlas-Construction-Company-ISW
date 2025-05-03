@@ -34,7 +34,7 @@ import {
   DialogActions,
 } from "@mui/material";
 import { roles } from "../../utils/varConst";
-import { getEmployees, handleDeleteEmployee } from "../../request/Employee";
+import { getEmployees, deleteEmployee } from "../../request/Employee";
 import { Employee } from "../../interfaces/ModelsTypes";
 
 export default function Employees() {
@@ -227,7 +227,10 @@ export default function Employees() {
 
         <EditEmployeeModal
           open={openEditModal}
-          handleClose={() => setOpenEditModal(false)}
+          handleClose={() => {
+            setOpenEditModal(false);
+            setUsernameToEdit("");
+          }}
           handleSubmit={refreshFetchEmployees}
           usernameToEdit={usernameToEdit}
         />
@@ -248,7 +251,7 @@ export default function Employees() {
             <Button
               color="error"
               onClick={() => {
-                handleDeleteEmployee({
+                deleteEmployee({
                   usernameToDelete,
                   setOpenDeleteDialog,
                   setSnackbarOpen,

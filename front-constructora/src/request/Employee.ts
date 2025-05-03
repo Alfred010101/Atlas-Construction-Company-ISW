@@ -100,6 +100,86 @@ export const getEmployees = async ({
   }
 };
 
+interface HandleGetEmployeeProps {
+  usernameToEdit: string;
+  setEmployeeData: (value: React.SetStateAction<Employee>) => void;
+}
+
+export const getEmployee = async ({
+  usernameToEdit,
+  setEmployeeData,
+}: HandleGetEmployeeProps) => {
+  const token = localStorage.getItem("token");
+  fetch(
+    `http://localhost:8080/api/admin/v1/employees/find/${encodeURIComponent(
+      usernameToEdit
+    )}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  )
+    .then((res) => res.json())
+    .then((data) => {
+      setEmployeeData({
+        employeeFirstName: data.data.employeeFirstName,
+        employeeLastName: data.data.employeeLastName,
+        username: data.data.username,
+        employeePhone: data.data.employeePhone,
+        role: data.data.role,
+        password: "",
+      });
+    })
+    .catch((err) => {
+      console.error("Error fetching user:", err);
+    });
+};
+
+interface HandleUpdateEmployeeProps {
+  payload: Partial<EmployeeFull>;
+  handleSubmit: (
+    text: string,
+    type: "success" | "error",
+    refresh: boolean,
+    visble: boolean
+  ) => void;
+  usernameToEdit: string | null;
+}
+
+export const updateEmployee = async ({
+  payload,
+  handleSubmit,
+  usernameToEdit,
+}: HandleUpdateEmployeeProps) => {
+  const token = localStorage.getItem("token");
+  try {
+    const response = await fetch(
+      `http://localhost:8080/api/admin/v1/employees/update/${encodeURIComponent(
+        usernameToEdit || ""
+      )}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("");
+    }
+
+    handleSubmit("Empleado actualizado exitosamente!", "success", true, true);
+  } catch (error) {
+    handleSubmit("Error al actualizar al el empleado.", "error", false, true);
+  }
+};
+
 interface HandleDeleteEmployeeProps {
   usernameToDelete: string | null;
   setOpenDeleteDialog: (value: React.SetStateAction<boolean>) => void;
@@ -112,7 +192,7 @@ interface HandleDeleteEmployeeProps {
   ) => void;
 }
 
-export const handleDeleteEmployee = async ({
+export const deleteEmployee = async ({
   usernameToDelete,
   setOpenDeleteDialog,
   setSnackbarOpen,

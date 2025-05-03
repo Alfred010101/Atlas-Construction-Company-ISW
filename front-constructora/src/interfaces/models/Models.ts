@@ -1,8 +1,8 @@
 export interface Employee {
-  firstName: "";
-  lastName: "";
-  username: "";
-  password: "";
-  phone: "";
-  role: "";
+  firstName: string;
+  lastName: string;
+  username: string;
+  password: string;
+  phone: string;
+  role: string;
 }

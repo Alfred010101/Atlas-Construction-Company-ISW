@@ -32,7 +32,7 @@ interface Customer {
   phone: string;
 }
 
-const Customers = () => {
+export default function Customers() {
   const { navItems } = useMenuConfig();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -233,6 +233,4 @@ const Customers = () => {
       </Box>
     </Dashboard>
   );
-};
-
-export default Customers;
+}

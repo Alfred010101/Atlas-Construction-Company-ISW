@@ -12,15 +12,16 @@ import {
   SelectChangeEvent,
 } from "@mui/material";
 import { roles } from "./../../utils/varConst";
-
-interface User {
-  firstName: string;
-  lastName: string;
-  username: string;
-  password?: string;
-  phone: string;
-  role: string;
-}
+import { Employee } from "../../interfaces/ModelsTypes";
+import { Employee as EmployeeFull } from "../../interfaces/models/Models";
+import { getEmployee, updateEmployee } from "../../request/Employee";
+import {
+  validateName,
+  validatePassword,
+  validatePhoneMX,
+  validateRole,
+  validateUsername,
+} from "../../utils/validations";
 
 interface EditEmployeeModalProps {
   open: boolean;
@@ -40,96 +41,145 @@ const EditEmployee = ({
   handleClose,
   handleSubmit,
 }: EditEmployeeModalProps) => {
-  const [user, setUser] = useState<User>({
-    firstName: "",
-    lastName: "",
+  const [employeeData, setEmployeeData] = useState<Employee>({
+    employeeFirstName: "",
+    employeeLastName: "",
     username: "",
     password: "",
-    phone: "",
+    employeePhone: "",
+    role: "",
+  });
+
+  const [errors, setErrors] = useState({
+    employeeFirstName: "",
+    employeeLastName: "",
+    username: "",
+    password: "",
+    employeePhone: "",
     role: "",
   });
 
   useEffect(() => {
     if (usernameToEdit) {
-      const token = localStorage.getItem("token");
-      fetch(
-        `http://localhost:8080/api/v1/admin/findUser/${encodeURIComponent(
-          usernameToEdit
-        )}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-        .then((res) => res.json())
-        .then((data) => {
-          setUser({
-            firstName: data.data.firstName,
-            lastName: data.data.lastName,
-            username: data.data.username,
-            phone: data.data.phone,
-            role: data.data.role,
-            password: "",
-          });
-        })
-        .catch((err) => {
-          console.error("Error fetching user:", err);
-        });
+      getEmployee({ usernameToEdit, setEmployeeData });
     }
   }, [usernameToEdit]);
 
+  // Validación en tiempo real
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setUser((prev) => ({ ...prev, [name]: value }));
+
+    setEmployeeData({
+      ...employeeData,
+      [name]: value,
+    });
+
+    if (name === "employeeFirstName" || name === "employeeLastName") {
+      setErrors({
+        ...errors,
+        [name]: validateName(value),
+      });
+    } else if (name === "username") {
+      setErrors({
+        ...errors,
+        [name]: validateUsername(value),
+      });
+    } else if (name === "password") {
+      setErrors({
+        ...errors,
+        [name]: validatePassword(value),
+      });
+    } else if (name === "employeePhone") {
+      setErrors({
+        ...errors,
+        [name]: validatePhoneMX(value),
+      });
+    }
   };
 
+  // Validación en tiempo real
   const handleRoleChange = (e: SelectChangeEvent<string>) => {
-    setUser((prev) => ({ ...prev, role: e.target.value }));
+    const { name, value } = e.target;
+    setEmployeeData({
+      ...employeeData,
+      [name]: value,
+    });
+
+    setErrors({
+      ...errors,
+      role: validateRole(value),
+    });
   };
 
-  const handleSave = async () => {
-    const token = localStorage.getItem("token");
-    const payload: Partial<User> = {
-      firstName: user.firstName,
-      lastName: user.lastName,
-      phone: user.phone,
-      role: user.role,
+  const validateForm = () => {
+    const newErrors = {
+      employeeFirstName: validateName(employeeData.employeeFirstName || ""),
+      employeeLastName: validateName(employeeData.employeeLastName || ""),
+      username: "",
+      password:
+        (employeeData.password &&
+          validatePassword(employeeData.password || "")) ||
+        "",
+      employeePhone: validatePhoneMX(employeeData.employeePhone || ""),
+      role: validateRole(employeeData.role || ""),
     };
 
-    if (user.password && user.password.trim() !== "") {
-      payload.password = user.password;
+    setErrors(newErrors);
+
+    return !Object.values(newErrors).some((error) => error);
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      handleSubmit("Porfavor ingrese datos validos", "error", false, true);
+      return;
     }
 
-    try {
-      const response = await fetch(
-        `http://localhost:8080/api/v1/admin/updateUser/${encodeURIComponent(
-          user.username
-        )}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+    const payload: Partial<EmployeeFull> = {
+      firstName: employeeData.employeeFirstName,
+      lastName: employeeData.employeeLastName,
+      phone: employeeData.employeePhone,
+      role: employeeData.role,
+    };
 
-      if (!response.ok) {
-        throw new Error("Error updating user");
-      }
-      handleSubmit("Empleado actualizado exitosamente!", "success", true, true);
-      handleClose();
-    } catch (error) {
-      console.error("Error updating user:", error);
+    if (employeeData.password) {
+      payload.password = employeeData.password;
     }
+
+    updateEmployee({ handleSubmit, payload, usernameToEdit });
+
+    handleClose();
+  };
+
+  const handleClearFields = () => {
+    setEmployeeData({
+      employeeFirstName: "",
+      employeeLastName: "",
+      username: "",
+      password: "",
+      employeePhone: "",
+      role: "",
+    });
+    setErrors({
+      employeeFirstName: "",
+      employeeLastName: "",
+      username: "",
+      password: "",
+      employeePhone: "",
+      role: "",
+    });
   };
 
   return (
-    <Modal open={open} onClose={handleClose}>
+    <Modal
+      open={open}
+      onClose={() => {
+        handleClearFields();
+        handleClose();
+      }}
+    >
       <Box
         sx={{
           position: "absolute",
@@ -142,18 +192,20 @@ const EditEmployee = ({
           width: 650,
         }}
       >
-        <form onSubmit={handleSave} autoComplete="off">
+        <form onSubmit={handleFormSubmit} autoComplete="off">
           <Typography variant="h6" mb={2} textAlign="center">
             Editar Usuario
           </Typography>
 
           <TextField
-            label="Correo Electrónico"
+            label="Usuario"
             variant="standard"
             fullWidth
             name="username"
-            value={user.username}
+            value={employeeData.username}
             margin="normal"
+            error={!!errors.username}
+            helperText={errors.username}
             disabled
           />
 
@@ -161,20 +213,24 @@ const EditEmployee = ({
             label="Nombre(s)"
             variant="standard"
             fullWidth
-            name="firstName"
-            value={user.firstName}
+            name="employeeFirstName"
+            value={employeeData.employeeFirstName}
             onChange={handleChange}
             margin="normal"
+            error={!!errors.employeeFirstName}
+            helperText={errors.employeeFirstName}
           />
 
           <TextField
             label="Apellido(s)"
             variant="standard"
             fullWidth
-            name="lastName"
-            value={user.lastName}
+            name="employeeLastName"
+            value={employeeData.employeeLastName}
             onChange={handleChange}
             margin="normal"
+            error={!!errors.employeeLastName}
+            helperText={errors.employeeLastName}
           />
 
           <TextField
@@ -183,27 +239,36 @@ const EditEmployee = ({
             fullWidth
             name="password"
             type="password"
-            value={user.password}
+            value={employeeData.password}
             onChange={handleChange}
             margin="normal"
-            helperText="Deja vacío si no deseas cambiarla"
+            error={
+              !!errors.password && errors.password !== "Este campo es requerido"
+            }
+            helperText={
+              (errors.password !== "Este campo es requerido" &&
+                errors.password) ||
+              "Deja vacío si no deseas cambiarla la contraseña"
+            }
           />
 
           <TextField
             label="Teléfono"
             variant="standard"
             fullWidth
-            name="phone"
-            value={user.phone}
+            name="employeePhone"
+            value={employeeData.employeePhone}
             onChange={handleChange}
             margin="normal"
+            error={!!errors.employeePhone}
+            helperText={errors.employeePhone}
           />
 
-          <FormControl fullWidth margin="normal">
+          <FormControl fullWidth margin="normal" error={!!errors.role}>
             <InputLabel>Rol</InputLabel>
             <Select
               label="Rol"
-              value={user.role}
+              value={employeeData.role}
               variant="standard"
               onChange={handleRoleChange}
               name="role"
@@ -222,19 +287,27 @@ const EditEmployee = ({
                 </MenuItem>
               ))}
             </Select>
+            {errors.role && (
+              <Typography variant="caption" color="error">
+                {errors.role}
+              </Typography>
+            )}
           </FormControl>
 
           <Box display="flex" justifyContent="right" mt={2}>
             <Button
               variant="outlined"
               color="secondary"
-              onClick={handleClose}
+              onClick={() => {
+                handleClearFields();
+                handleClose();
+              }}
               sx={{ marginRight: 2 }}
             >
               Cancelar
             </Button>
             <Button variant="contained" color="primary" type="submit">
-              Guardar
+              Guardar Cambios
             </Button>
           </Box>
         </form>

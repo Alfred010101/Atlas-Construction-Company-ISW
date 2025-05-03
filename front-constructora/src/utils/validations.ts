@@ -29,7 +29,7 @@ export const validateUsername = (username: string) => {
 
 // Validacion para contraseña
 export const validatePassword = (password: string) => {
-  if (!password.trim()) return "Este campo es requerido";
+  if (!password) return "Este campo es requerido";
   if (password.length < 4) return "Debe tener al menos 4 caracteres";
   if (password.length > 16) return "No puede exceder los 16 caracteres";
   return "";
