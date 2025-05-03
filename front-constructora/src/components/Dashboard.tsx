@@ -58,7 +58,7 @@ const DashboardLayout = ({ children, navItems }: DashboardProps) => {
           display="flex"
           flexDirection="column"
           alignItems="center"
-          style={{ marginTop: 45 }}
+          style={{ marginTop: 60 }}
         >
           <DashboardIcon style={{ width: 50, height: 50, color: "gray" }} />
           <Typography

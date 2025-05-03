@@ -34,7 +34,11 @@ import {
   DialogActions,
 } from "@mui/material";
 import { roles } from "../../utils/varConst";
-import { getEmployees, deleteEmployee } from "../../request/Employee";
+import {
+  getEmployees,
+  deleteEmployee,
+  refreshEmployees,
+} from "../../request/Employee";
 import { Employee } from "../../interfaces/ModelsTypes";
 
 export default function Employees() {
@@ -59,28 +63,18 @@ export default function Employees() {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [usernameToDelete, setUsernameToDelete] = useState<string | null>(null);
 
-  useEffect(() => {
-    //getEmployees({ setEmployees, setSnackbarOpen });
-    refreshFetchEmployees(
-      "Empleados cargados exitosamente!",
-      "success",
-      true,
-      true
-    );
-  }, []);
-
-  const refreshFetchEmployees = (
-    text: string,
-    type: "success" | "error",
-    refresh: boolean,
-    visble: boolean
-  ) => {
-    if (refresh) {
-      getEmployees({ setEmployees, setSnackbarOpen });
-    }
+  const handleSnackBar = (text: string, type: "success" | "error") => {
     setSnackbarMessage(text);
     setSnackbarSeverity(type);
-    setSnackbarOpen(visble);
+    setSnackbarOpen(true);
+  };
+
+  useEffect(() => {
+    getEmployees({ setEmployees, handleSnackBar });
+  }, []);
+
+  const refreshFetchEmployees = () => {
+    refreshEmployees({ setEmployees });
   };
 
   const filteredEmployees = employees.filter((emp) => {
@@ -103,12 +97,8 @@ export default function Employees() {
   };
 
   return (
-    <Dashboard navItems={navItems}>
+    <Dashboard navItems={navItems} titleBar="Gestión de Empleados">
       <Box p={3}>
-        <Typography variant="h4" mb={3} align="center">
-          Gestión de Empleados
-        </Typography>
-
         <Toolbar sx={{ justifyContent: "space-between", p: 0, mb: 2 }}>
           <Box display="flex" gap={2}>
             <TextField
@@ -153,12 +143,7 @@ export default function Employees() {
               variant="outlined"
               startIcon={<Refresh />}
               onClick={() => {
-                refreshFetchEmployees(
-                  "Empleados recargados exitosamente!",
-                  "success",
-                  true,
-                  true
-                );
+                getEmployees({ setEmployees, handleSnackBar });
               }}
             >
               Recargar
@@ -175,11 +160,23 @@ export default function Employees() {
         </Toolbar>
 
         <TableContainer component={Paper}>
-          <Table>
+          <Table
+            sx={{
+              "& .MuiTableCell-head": {
+                backgroundColor: "#45b39d",
+                color: "#ffffff",
+                fontWeight: "bold",
+                fontSize: "17px",
+              },
+              "& .MuiTableCell-body": {
+                fontSize: "16px",
+              },
+            }}
+          >
             <TableHead>
               <TableRow>
                 <TableCell>Nombre</TableCell>
-                <TableCell>Email</TableCell>
+                <TableCell>Usuario</TableCell>
                 <TableCell>Teléfono</TableCell>
                 <TableCell>Rol</TableCell>
                 <TableCell align="right">Acciones</TableCell>
@@ -188,7 +185,12 @@ export default function Employees() {
 
             <TableBody>
               {filteredEmployees.map((employee, index) => (
-                <TableRow key={index}>
+                <TableRow
+                  key={index}
+                  sx={{
+                    backgroundColor: index % 2 === 0 ? "#fff" : "#ecf0f1",
+                  }}
+                >
                   <TableCell>{employee.employeeFullName}</TableCell>
                   <TableCell>{employee.username}</TableCell>
                   <TableCell>{employee.employeePhone}</TableCell>
@@ -200,6 +202,9 @@ export default function Employees() {
                         setUsernameToEdit(employee.username || "");
                         setOpenEditModal(true);
                       }}
+                      sx={{
+                        "&:hover": { backgroundColor: "#d4e6f1" },
+                      }}
                     >
                       <Edit />
                     </IconButton>
@@ -208,6 +213,9 @@ export default function Employees() {
                       onClick={() => {
                         setUsernameToDelete(employee.username || "");
                         setOpenDeleteDialog(true);
+                      }}
+                      sx={{
+                        "&:hover": { backgroundColor: "#f2d7d5" },
                       }}
                     >
                       <Delete />
@@ -222,7 +230,8 @@ export default function Employees() {
         <RegisterEmployeeModal
           open={openCreateModal}
           handleClose={() => setOpenCreateModal(false)}
-          handleSubmit={refreshFetchEmployees}
+          refresh={refreshFetchEmployees}
+          handleSnackBar={handleSnackBar}
         />
 
         <EditEmployeeModal

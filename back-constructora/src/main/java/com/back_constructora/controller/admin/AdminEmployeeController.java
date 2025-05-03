@@ -2,6 +2,7 @@ package com.back_constructora.controller.admin;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -47,11 +48,22 @@ public class AdminEmployeeController
     }
 
     @GetMapping("/all")
-    public ResponseEntity<ApiResponse<List<EmployeeDTO>>> findAll() 
+    public ResponseEntity<Map<String, Object>> findAll() 
     {
+        List<EmployeeDTO> employees = employeeService
+            .findAllAsList()
+            .orElse(Collections.emptyList());
+
+        String message = (employees.isEmpty())  ?  
+            "No se encontraron registros disponibles" : 
+            "Empleados cargados exitosamente!";
+        
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(new ApiResponse<>("Todos los usuarios disponibles", employeeService.findAllAsList().orElse(Collections.emptyList())));
+            .body(Map.of(
+                "message", message,
+                "data", employees
+            ));
     }
 
     @GetMapping("/find/{username}")

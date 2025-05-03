@@ -62,8 +62,9 @@ const DashboardAppBar: React.FC<DashboardAppBarProps> = ({ toggleDrawer }) => {
       position="fixed"
       sx={{
         zIndex: 1300,
-        backgroundColor: "#1abc9c",
-        height: 40,
+        /*backgroundColor: "#1abc9c",*/
+        backgroundColor: "#f39c12",
+        height: 50,
       }}
     >
       <Toolbar
@@ -80,10 +81,11 @@ const DashboardAppBar: React.FC<DashboardAppBarProps> = ({ toggleDrawer }) => {
           edge="start"
           onClick={toggleDrawer}
           sx={{
-            bottom: 12,
+            bottom: 6,
             "& svg": {
               fill: "#000",
             },
+            "&:hover": { backgroundColor: "#f9e79f" },
           }}
         >
           <MenuIcon />
@@ -94,7 +96,7 @@ const DashboardAppBar: React.FC<DashboardAppBarProps> = ({ toggleDrawer }) => {
             <IconButton
               onClick={handleOpenUserMenu}
               sx={{
-                bottom: 12,
+                bottom: 6,
                 p: 0,
                 "&:hover": {
                   transform: "scale(1.1)",
@@ -104,11 +106,11 @@ const DashboardAppBar: React.FC<DashboardAppBarProps> = ({ toggleDrawer }) => {
             >
               <Avatar
                 alt="Usuario"
-                src="/static/images/avatar/2.jpg"
                 sx={{
                   width: 35,
                   height: 35,
                   border: "2px solid white",
+                  background: "#f4d03f",
                 }}
               />
             </IconButton>

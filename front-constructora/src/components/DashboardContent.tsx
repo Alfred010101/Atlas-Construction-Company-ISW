@@ -10,8 +10,8 @@ const DashboardContent = ({ children }: DashboardContentProps) => {
     <Box
       component="main"
       sx={{
+        marginTop: 5,
         flexGrow: 1,
-        p: 3,
         marginLeft: 0,
         transition: "margin 0.7s",
       }}

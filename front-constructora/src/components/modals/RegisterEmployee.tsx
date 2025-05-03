@@ -26,18 +26,15 @@ import { Employee as EmployeeFull } from "../../interfaces/models/Models";
 interface RegisterEmployeeModalProps {
   open: boolean;
   handleClose: () => void;
-  handleSubmit: (
-    text: string,
-    type: "success" | "error",
-    refresh: boolean,
-    visble: boolean
-  ) => void;
+  refresh: () => void;
+  handleSnackBar: (text: string, type: "success" | "error") => void;
 }
 
 const RegisterEmployee = ({
   open,
   handleClose,
-  handleSubmit,
+  refresh,
+  handleSnackBar,
 }: RegisterEmployeeModalProps) => {
   const [employeeData, setEmployeeData] = useState<EmployeeFull>({
     firstName: "",
@@ -125,7 +122,7 @@ const RegisterEmployee = ({
       return;
     }
 
-    saveEmployee({ handleClearFields, handleSubmit, employeeData });
+    saveEmployee({ refresh, handleClearFields, handleSnackBar, employeeData });
 
     handleClose();
   };
