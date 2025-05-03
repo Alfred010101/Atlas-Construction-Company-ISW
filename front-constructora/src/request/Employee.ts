@@ -20,11 +20,6 @@ export const saveEmployee = async ({
   try {
     const token = localStorage.getItem("token");
 
-    if (!token) {
-      console.error("Token no disponible");
-      return;
-    }
-
     const response = await fetch(
       "http://localhost:8080/api/admin/v1/employees/create",
       {
@@ -37,18 +32,15 @@ export const saveEmployee = async ({
       }
     );
 
+    const data = await response.json();
     if (!response.ok) {
-      throw new Error("Error al registrar el empleado.");
+      throw new Error(data.error);
     }
-    handleSubmit("Empleado registrado exitosamente!", "success", true, true);
+
+    handleSubmit(data.message, "success", true, true);
     handleClearFields();
   } catch (error) {
-    handleSubmit(
-      "Error registrando empleado: ".concat(String(error)),
-      "error",
-      true,
-      true
-    );
+    handleSubmit(String(error), "error", true, true);
   }
 };
 

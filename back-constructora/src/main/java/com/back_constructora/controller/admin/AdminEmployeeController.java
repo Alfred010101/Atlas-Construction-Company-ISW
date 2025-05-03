@@ -3,6 +3,7 @@ package com.back_constructora.controller.admin;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -20,6 +21,8 @@ import com.back_constructora.dto.EmployeeDTO;
 import com.back_constructora.model.Employee;
 import com.back_constructora.service.EmployeeService;
 import com.back_constructora.util.ApiResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,14 +32,18 @@ import lombok.RequiredArgsConstructor;
 public class AdminEmployeeController 
 {
     private final EmployeeService employeeService;
+    @Autowired 
+    private ObjectMapper objectMapper;
 
     @PostMapping("/create")
-    public ResponseEntity<ApiResponse<Employee>> save(@Validated @RequestBody Employee employee) 
+    public ResponseEntity<ObjectNode> save(@Validated @RequestBody Employee employee) 
     {
-        Employee savedEmployee = employeeService.save(employee);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(new ApiResponse<>("Usuario creado satisfactoriamente", savedEmployee));
+        employeeService.save(employee);
+
+        ObjectNode json = objectMapper.createObjectNode();
+        json.put("message", "Registro exitoso!");
+        
+        return ResponseEntity.status(HttpStatus.CREATED).body(json);
     }
 
     @GetMapping("/all")

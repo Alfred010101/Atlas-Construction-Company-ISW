@@ -44,7 +44,7 @@ export const validatePhoneMX = (phone: string) => {
   return "";
 };
 
-// Validación para rol (se mantiene igual)
+// Validación para rol
 export const validateRole = (role: string) => {
   if (!role) return "Este campo es requerido";
   return "";

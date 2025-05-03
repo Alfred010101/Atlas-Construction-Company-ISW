@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.back_constructora.dto.EmployeeDTO;
 import com.back_constructora.model.Employee;
 import com.back_constructora.repository.EmployeeRepository;
+import com.back_constructora.util.Validations;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,16 +24,24 @@ public class EmployeeService
 
     public Employee save(Employee employee) 
     {
-        if(employee.getUsername() == null || employee.getUsername().isEmpty()) 
+        if(employee == null) 
         {
-            throw new IllegalArgumentException("El email es requerido");
+            throw new IllegalArgumentException("Todos los campos son requeridos");
         }
+
+        Validations.validateName(employee.getFirstName());
+        Validations.validateName(employee.getLastName());
+        Validations.validateUsername(employee.getUsername());
+        Validations.validatePassword(employee.getPassword());
+        Validations.validatePhoneMX(employee.getPhone());
+        Validations.validateRole(employee.getRole());
 
         if(employeeRepository.existsByUsername(employee.getUsername())) 
         {
-            throw new IllegalStateException("El email no se encuentra disponible");
+            throw new IllegalStateException("El nombre de usuario no se encuentra disponible");
         }
 
+        employee.setUsername(employee.getUsername().concat("@atlas.com"));
         employee.setPassword(passwordEncoder.encode(employee.getPassword()));
         return employeeRepository.save(employee);
     }
