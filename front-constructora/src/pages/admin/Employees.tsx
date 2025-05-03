@@ -97,7 +97,7 @@ export default function Employees() {
   };
 
   return (
-    <Dashboard navItems={navItems} titleBar="Gestión de Empleados">
+    <Dashboard navItems={navItems}>
       <Box p={3}>
         <Toolbar sx={{ justifyContent: "space-between", p: 0, mb: 2 }}>
           <Box display="flex" gap={2}>
