@@ -1,132 +1,190 @@
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Button,
-  Stack,
-} from "@mui/material";
+import { Modal, Box, Typography, TextField, Button } from "@mui/material";
 import { useState } from "react";
+import { Customer as CustomerFull } from "../../interfaces/models/Models";
+import {
+  validateAddress,
+  validateName,
+  validatePhoneMX,
+} from "../../utils/validations";
+import { saveCustomer } from "../../request/Customer";
 
 interface RegisterCustomerModalProps {
   open: boolean;
   handleClose: () => void;
-  handleSubmit: (text: string, type: "success" | "error") => void;
+  refresh: () => void;
+  handleSnackBar: (text: string, type: "success" | "error") => void;
 }
 
 export default function RegisterCustomer({
   open,
   handleClose,
-  handleSubmit,
+  refresh,
+  handleSnackBar,
 }: RegisterCustomerModalProps) {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [address, setAddress] = useState("");
-  const [phone, setPhone] = useState("");
+  const [customerData, setCustomerData] = useState<CustomerFull>({
+    firstName: "",
+    lastName: "",
+    address: "",
+    phone: "",
+  });
 
-  const resetForm = () => {
-    setFirstName("");
-    setLastName("");
-    setAddress("");
-    setPhone("");
-  };
+  const [errors, setErrors] = useState({
+    firstName: "",
+    lastName: "",
+    address: "",
+    phone: "",
+  });
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Validación en tiempo real
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
 
-    try {
-      const token = localStorage.getItem("token");
+    setCustomerData({
+      ...customerData,
+      [name]: value,
+    });
 
-      if (!token) {
-        console.error("Token no disponible.");
-        return;
-      }
-
-      const response = await fetch(
-        "http://localhost:8080/api/v1/admin/customers/registerCustomer",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            firstName,
-            lastName,
-            address,
-            phone,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Error al registrar el cliente.");
-      }
-
-      resetForm();
-      handleSubmit("Cliente registrado exitosamente!", "success");
-      handleClose();
-    } catch (error) {
-      console.error("Error al registrar cliente:", error);
-      handleSubmit("Error al registrar el cliente.", "error");
+    if (name === "firstName" || name === "lastName") {
+      setErrors({
+        ...errors,
+        [name]: validateName(value),
+      });
+    } else if (name === "address") {
+      setErrors({
+        ...errors,
+        [name]: validateAddress(value),
+      });
+    } else if (name === "phone") {
+      setErrors({
+        ...errors,
+        [name]: validatePhoneMX(value),
+      });
     }
   };
 
+  const validateForm = () => {
+    const newErrors = {
+      firstName: validateName(customerData.firstName),
+      lastName: validateName(customerData.lastName),
+      address: validateAddress(customerData.address),
+      phone: validatePhoneMX(customerData.phone),
+    };
+
+    setErrors(newErrors);
+
+    return !Object.values(newErrors).some((error) => error);
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    saveCustomer({ refresh, handleClearFields, handleSnackBar, customerData });
+
+    handleClose();
+  };
+
+  const handleClearFields = () => {
+    setCustomerData({
+      firstName: "",
+      lastName: "",
+      address: "",
+      phone: "",
+    });
+    setErrors({
+      firstName: "",
+      lastName: "",
+      address: "",
+      phone: "",
+    });
+  };
+
   return (
-    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-      <DialogTitle>Registrar Cliente</DialogTitle>
+    <Modal open={open} onClose={handleClose}>
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          backgroundColor: "white",
+          padding: 3,
+          borderRadius: 5,
+          width: 650,
+        }}
+      >
+        <form onSubmit={handleFormSubmit} autoComplete="off">
+          <Typography variant="h6" mb={2} textAlign="center">
+            Registrar Cliente
+          </Typography>
 
-      <DialogContent>
-        <form onSubmit={onSubmit} autoComplete="off">
-          <Stack spacing={2} mt={1}>
-            <TextField
-              label="Nombre"
+          <TextField
+            label="Nombre(s)"
+            variant="standard"
+            fullWidth
+            name="firstName"
+            value={customerData.firstName}
+            onChange={handleChange}
+            margin="normal"
+            error={!!errors.firstName}
+            helperText={errors.firstName}
+          />
+
+          <TextField
+            label="Apellido(s)"
+            variant="standard"
+            fullWidth
+            name="lastName"
+            value={customerData.lastName}
+            onChange={handleChange}
+            margin="normal"
+            error={!!errors.lastName}
+            helperText={errors.lastName}
+          />
+
+          <TextField
+            label="Dirección"
+            variant="standard"
+            fullWidth
+            name="address"
+            value={customerData.address}
+            onChange={handleChange}
+            margin="normal"
+            error={!!errors.address}
+            helperText={errors.address}
+          />
+
+          <TextField
+            label="Teléfono (México)"
+            variant="standard"
+            fullWidth
+            name="phone"
+            value={customerData.phone}
+            onChange={handleChange}
+            margin="normal"
+            error={!!errors.phone}
+            helperText={errors.phone}
+            placeholder="Ej. 5512345678"
+          />
+
+          <Box display="flex" justifyContent="right" mt={2}>
+            <Button
               variant="outlined"
-              fullWidth
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              autoComplete="off"
-            />
-
-            <TextField
-              label="Apellido"
-              variant="outlined"
-              fullWidth
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              autoComplete="off"
-            />
-
-            <TextField
-              label="Dirección"
-              variant="outlined"
-              fullWidth
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              autoComplete="off"
-            />
-
-            <TextField
-              label="Teléfono"
-              variant="outlined"
-              fullWidth
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              autoComplete="off"
-            />
-          </Stack>
-
-          <DialogActions sx={{ mt: 2 }}>
-            <Button onClick={resetForm} color="secondary" type="button">
-              Limpiar
+              color="secondary"
+              onClick={handleClearFields}
+              sx={{ marginRight: 2 }}
+            >
+              Limpiar Campos
             </Button>
-            <Button type="submit" variant="contained" color="primary">
+            <Button variant="contained" color="primary" type="submit">
               Registrar
             </Button>
-          </DialogActions>
+          </Box>
         </form>
-      </DialogContent>
-    </Dialog>
+      </Box>
+    </Modal>
   );
 }

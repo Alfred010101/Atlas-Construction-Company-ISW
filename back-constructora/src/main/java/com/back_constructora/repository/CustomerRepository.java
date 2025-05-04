@@ -16,6 +16,13 @@ import com.back_constructora.model.Customer;
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Integer> 
 {
+    @Transactional
+    @Query(value = """
+        SELECT id AS customerId, CONCAT(first_name, ' ', last_name) AS customerFullName, address AS customerAddress, phone AS customerPhone
+        FROM customers;
+        """, nativeQuery = true)
+    Optional<List<CustomerDTO>> findAllAsList();
+
     @Modifying
     @Transactional
     @Query(value = """

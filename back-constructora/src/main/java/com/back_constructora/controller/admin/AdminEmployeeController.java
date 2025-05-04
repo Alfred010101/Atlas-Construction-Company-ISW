@@ -33,6 +33,7 @@ import lombok.RequiredArgsConstructor;
 public class AdminEmployeeController 
 {
     private final EmployeeService employeeService;
+
     @Autowired 
     private ObjectMapper objectMapper;
 
@@ -44,7 +45,9 @@ public class AdminEmployeeController
         ObjectNode json = objectMapper.createObjectNode();
         json.put("message", "Registro exitoso!");
         
-        return ResponseEntity.status(HttpStatus.CREATED).body(json);
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(json);
     }
 
     @GetMapping("/all")

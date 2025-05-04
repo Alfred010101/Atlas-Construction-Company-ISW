@@ -26,7 +26,7 @@ INNER JOIN
 INNER JOIN 
 	construction_company.users e ON p.fk_supervisor = e.id;
     
-DROP TABLE construction_company.roles;
+DROP TABLE construction_company.customers;
 
 DROP DATABASE construction_company;
 

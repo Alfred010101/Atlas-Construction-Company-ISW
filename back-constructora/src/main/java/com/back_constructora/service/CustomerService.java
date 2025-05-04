@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.back_constructora.dto.CustomerDTO;
 import com.back_constructora.model.Customer;
 import com.back_constructora.repository.CustomerRepository;
+import com.back_constructora.util.Validations;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,12 +20,22 @@ public class CustomerService
 
     public Customer save(Customer customer) 
     {
+        if(customer == null) 
+        {
+            throw new IllegalArgumentException("Todos los campos son requeridos");
+        }
+
+        Validations.validateName(customer.getFirstName());
+        Validations.validateName(customer.getLastName());
+        Validations.validateAddress(customer.getAddress());
+        Validations.validatePhoneMX(customer.getPhone());        
+
         return customerRepository.save(customer);
     }
 
-    public List<Customer> findAllAsList()
+    public Optional<List<CustomerDTO>> findAllAsList()
     {
-        return customerRepository.findAll();
+        return customerRepository.findAllAsList();
     }
 
     public Optional<Customer> findById(Integer id)

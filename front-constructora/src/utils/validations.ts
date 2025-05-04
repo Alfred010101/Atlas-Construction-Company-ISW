@@ -49,3 +49,9 @@ export const validateRole = (role: string) => {
   if (!role) return "Este campo es requerido";
   return "";
 };
+
+// Validacion para direccion
+export const validateAddress = (address: string) => {
+  if (!address.trim()) return "Este campo es requerido";
+  return "";
+};

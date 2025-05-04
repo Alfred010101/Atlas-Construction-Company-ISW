@@ -162,7 +162,7 @@ const RegisterEmployee = ({
       >
         <form onSubmit={handleFormSubmit} autoComplete="off">
           <Typography variant="h6" mb={2} textAlign="center">
-            Registrar Nuevo Empleado
+            Registrar Empleado
           </Typography>
 
           <TextField
@@ -224,7 +224,7 @@ const RegisterEmployee = ({
             margin="normal"
             error={!!errors.phone}
             helperText={errors.phone}
-            placeholder="Ej. 55 1234 5678 o +52 55 1234 5678"
+            placeholder="Ej. 5512345678"
           />
 
           <FormControl fullWidth margin="normal" error={!!errors.role}>

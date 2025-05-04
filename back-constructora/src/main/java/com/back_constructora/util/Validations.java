@@ -83,4 +83,11 @@ public class Validations
             throw new IllegalArgumentException("$Rol: Este campo es requerido");
         }
     }
+
+    // Validación para direccion
+    public static void validateAddress (String address)
+    {
+        if (address == null || address.trim().isEmpty()) 
+            throw new IllegalArgumentException( "$Direccion: Este campo es requerido");
+    }
 }

@@ -1,7 +1,10 @@
 package com.back_constructora.controller.admin;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -14,34 +17,55 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.back_constructora.dto.CustomerDTO;
 import com.back_constructora.model.Customer;
 import com.back_constructora.service.CustomerService;
 import com.back_constructora.util.ApiResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/admin/customers")
+@RequestMapping("/api/admin/v1/customers")
 @RequiredArgsConstructor
 public class AdminCustomerController 
 {
 
     private final CustomerService customerService;
 
-    @PostMapping("/registerCustomer")
-    public ResponseEntity<ApiResponse<Customer>> createEmployee(@Validated @RequestBody Customer customer) 
+    @Autowired 
+    private ObjectMapper objectMapper;
+
+    @PostMapping("/create")
+    public ResponseEntity<ObjectNode> createEmployee(@Validated @RequestBody Customer customer) 
     {
-        Customer savedCustomer = customerService.save(customer);
+        customerService.save(customer);
+        ObjectNode json = objectMapper.createObjectNode();
+        json.put("message", "Registro exitoso!");
+        
         return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(new ApiResponse<>("Customer creado satisfactoriamente", savedCustomer));
+            .status(HttpStatus.CREATED)
+            .body(json);
     }
 
-    @GetMapping("/allCustomers")
-    public ResponseEntity<ApiResponse<List<Customer>>> getAllCustomers() {
+    @GetMapping("/all")
+    public ResponseEntity<Map<String, Object>> findAll() 
+    {
+        List<CustomerDTO> customers = customerService
+            .findAllAsList()
+            .orElse(Collections.emptyList());
+
+        String message = (customers.isEmpty())  ?  
+            "No se encontraron registros disponibles" : 
+            "Clientes cargados exitosamente!";
+        
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(new ApiResponse<>("Todos los clientes disponibles", customerService.findAllAsList()));
+            .body(Map.of(
+                "message", message,
+                "data", customers
+            ));
     }
 
     @GetMapping("/{id}")

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -24,83 +24,46 @@ import { useMenuConfig } from "./menuConfig";
 import { useAuth } from "../../context/AuthContext";
 import RegisterCustomerModal from "../../components/modals/RegisterCustomer";
 import EditCustomerModal from "../../components/modals/EditCustomer";
-
-interface Customer {
-  id: number;
-  name: string;
-  address: string;
-  phone: string;
-}
+import { getCustomers, refreshCustomers } from "../../request/Customer";
+import { Customer } from "../../interfaces/ModelsTypes";
 
 export default function Customers() {
   const { navItems } = useMenuConfig();
+  const { isAuthenticated } = useAuth();
+
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [openDialog, setOpenDialog] = useState(false);
+
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
     "success"
   );
 
+  const [openCreateModal, setOpenCreateModal] = useState(false);
+
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [idToEdit, setIDToEdit] = useState<number | null>(null);
 
-  const { isAuthenticated } = useAuth();
-
-  const fetchCustomers = useCallback(async () => {
-    try {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        console.error("Token no disponible.");
-        return;
-      }
-
-      const response = await fetch(
-        "http://localhost:8080/api/v1/admin/customers/allCustomers",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Error al obtener los clientes.");
-      }
-
-      const data = await response.json();
-
-      const customersData = data.data.map((customer: any) => ({
-        id: customer.id,
-        name: `${customer.firstName} ${customer.lastName}`,
-        address: customer.address,
-        phone: customer.phone,
-      }));
-
-      setCustomers(customersData);
-      setSnackbarOpen(true);
-    } catch (error) {
-      console.error("Error fetching customers:", error);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchCustomers();
-    refreshFetchCustomers("Clientes cargados exitosamente!", "success");
-  }, [fetchCustomers]);
-
-  const refreshFetchCustomers = (text: string, type: "success" | "error") => {
-    fetchCustomers();
+  const handleSnackBar = (text: string, type: "success" | "error") => {
     setSnackbarMessage(text);
     setSnackbarSeverity(type);
+    setSnackbarOpen(true);
+  };
+
+  useEffect(() => {
+    getCustomers({ setCustomers, handleSnackBar });
+  }, []);
+
+  const refreshFetchCustomers = () => {
+    refreshCustomers({ setCustomers });
   };
 
   const filteredCustomers = customers.filter((cust) => {
-    return cust.name.toLowerCase().includes(searchTerm.toLowerCase());
+    console.log(cust);
+    return cust.customerFullName
+      ?.toLowerCase()
+      .includes(searchTerm.toLowerCase());
   });
 
   if (!isAuthenticated) {
@@ -110,10 +73,6 @@ export default function Customers() {
   return (
     <Dashboard navItems={navItems}>
       <Box p={3}>
-        <Typography variant="h4" mb={3} align="center">
-          Gestión de Clientes
-        </Typography>
-
         <Toolbar sx={{ justifyContent: "space-between", p: 0, mb: 2 }}>
           <Box display="flex" gap={2}>
             <TextField
@@ -137,10 +96,7 @@ export default function Customers() {
               variant="outlined"
               startIcon={<Refresh />}
               onClick={() => {
-                refreshFetchCustomers(
-                  "Clientes recargados exitosamente!",
-                  "success"
-                );
+                getCustomers({ setCustomers, handleSnackBar });
               }}
             >
               Recargar
@@ -149,7 +105,7 @@ export default function Customers() {
             <Button
               variant="contained"
               startIcon={<Add />}
-              onClick={() => setOpenDialog(true)}
+              onClick={() => setOpenCreateModal(true)}
             >
               Agregar cliente
             </Button>
@@ -157,10 +113,21 @@ export default function Customers() {
         </Toolbar>
 
         <TableContainer component={Paper}>
-          <Table>
+          <Table
+            sx={{
+              "& .MuiTableCell-head": {
+                backgroundColor: "#45b39d",
+                color: "#ffffff",
+                fontWeight: "bold",
+                fontSize: "17px",
+              },
+              "& .MuiTableCell-body": {
+                fontSize: "16px",
+              },
+            }}
+          >
             <TableHead>
               <TableRow>
-                <TableCell>ID</TableCell>
                 <TableCell>Nombre</TableCell>
                 <TableCell>Dirección</TableCell>
                 <TableCell>Teléfono</TableCell>
@@ -170,22 +137,34 @@ export default function Customers() {
 
             <TableBody>
               {filteredCustomers.map((customer, index) => (
-                <TableRow key={index}>
-                  <TableCell>{customer.id}</TableCell>
-                  <TableCell>{customer.name}</TableCell>
-                  <TableCell>{customer.address}</TableCell>
-                  <TableCell>{customer.phone}</TableCell>
+                <TableRow
+                  key={index}
+                  sx={{
+                    backgroundColor: index % 2 === 0 ? "#fff" : "#ecf0f1",
+                  }}
+                >
+                  <TableCell>{customer.customerFullName}</TableCell>
+                  <TableCell>{customer.customerAddress}</TableCell>
+                  <TableCell>{customer.customerPhone}</TableCell>
                   <TableCell align="right">
                     <IconButton
                       color="primary"
                       onClick={() => {
-                        setIDToEdit(customer.id);
+                        setIDToEdit(customer.customerId || 0);
                         setOpenEditDialog(true);
+                      }}
+                      sx={{
+                        "&:hover": { backgroundColor: "#d4e6f1" },
                       }}
                     >
                       <Edit />
                     </IconButton>
-                    <IconButton color="error">
+                    <IconButton
+                      color="error"
+                      sx={{
+                        "&:hover": { backgroundColor: "#f2d7d5" },
+                      }}
+                    >
                       <Delete />
                     </IconButton>
                   </TableCell>
@@ -196,9 +175,10 @@ export default function Customers() {
         </TableContainer>
 
         <RegisterCustomerModal
-          open={openDialog}
-          handleClose={() => setOpenDialog(false)}
-          handleSubmit={refreshFetchCustomers}
+          open={openCreateModal}
+          handleClose={() => setOpenCreateModal(false)}
+          refresh={refreshFetchCustomers}
+          handleSnackBar={handleSnackBar}
         />
 
         <EditCustomerModal
@@ -206,15 +186,11 @@ export default function Customers() {
           customerId={idToEdit}
           onClose={() => setOpenEditDialog(false)}
           onSave={() => {
-            refreshFetchCustomers(
-              "Empleado actualizado exitosamente!",
-              "success"
-            );
             setOpenEditDialog(false);
           }}
         />
 
-        {/* Snackbar de confirmación */}
+        {/* Snackbar de log */}
         <Snackbar
           open={snackbarOpen}
           autoHideDuration={3000}
