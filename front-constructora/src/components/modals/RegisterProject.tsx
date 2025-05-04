@@ -1,8 +1,7 @@
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+  Modal,
+  Box,
+  Typography,
   Button,
   TextField,
   Select,
@@ -10,46 +9,51 @@ import {
   FormControl,
   InputLabel,
   Stack,
+  SelectChangeEvent,
 } from "@mui/material";
 import { useState, useEffect } from "react";
-
-interface Customer {
-  id: number;
-  firstName: string;
-  lastName: string;
-}
-
-interface Supervisor {
-  id: number;
-  firstName: string;
-  lastName: string;
-}
+import { Project as ProjectFull } from "../../interfaces/models/Models";
+import { Customer, Employee } from "../../interfaces/ModelsTypes";
 
 interface RegisterProjectModalProps {
   open: boolean;
   handleClose: () => void;
-  handleSubmit: (text: string, type: "success" | "error") => void;
+  refresh: () => void;
+  handleSnackBar: (text: string, type: "success" | "error") => void;
 }
 
 export default function RegisterProjectModal({
   open,
   handleClose,
-  handleSubmit,
+  refresh,
+  handleSnackBar,
 }: RegisterProjectModalProps) {
-  const [name, setName] = useState("");
-  const [address, setAddress] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [customerId, setCustomerId] = useState("");
-  const [supervisorId, setSupervisorId] = useState("");
+  const [projectData, setProjectData] = useState<ProjectFull>({
+    name: "",
+    fkCustomer: 0,
+    address: "",
+    startDate: "",
+    endDate: "",
+    fkSupervisor: 0,
+  });
+
+  const [errors, setErrors] = useState({
+    name: "",
+    fkCustomer: "",
+    address: "",
+    startDate: "",
+    endDate: "",
+    fkSupervisor: "",
+  });
+
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [supervisors, setSupervisors] = useState<Supervisor[]>([]);
+  const [supervisors, setSupervisors] = useState<Employee[]>([]);
 
   useEffect(() => {
     const fetchCustomers = async () => {
       const token = localStorage.getItem("token");
       const res = await fetch(
-        "http://localhost:8080/api/v1/admin/customers/getCustomers",
+        "http://localhost:8080/api/admin/v1/customers/getCustomers",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -63,7 +67,7 @@ export default function RegisterProjectModal({
     const fetchSupervisors = async () => {
       const token = localStorage.getItem("token");
       const res = await fetch(
-        "http://localhost:8080/api/v1/admin/employees/getSupervisor",
+        "http://localhost:8080/api/admin/v1/employees/getSupervisors",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -80,154 +84,221 @@ export default function RegisterProjectModal({
     }
   }, [open]);
 
-  const clearForm = () => {
-    setName("");
-    setAddress("");
-    setStartDate("");
-    setEndDate("");
-    setCustomerId("");
-    setSupervisorId("");
+  // Validación en tiempo real
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    /* const { name, value } = e.target;
+  
+      setCustomerData({
+        ...customerData,
+        [name]: value,
+      });
+  
+      if (name === "firstName" || name === "lastName") {
+        setErrors({
+          ...errors,
+          [name]: validateName(value),
+        });
+      } else if (name === "address") {
+        setErrors({
+          ...errors,
+          [name]: validateAddress(value),
+        });
+      } else if (name === "phone") {
+        setErrors({
+          ...errors,
+          [name]: validatePhoneMX(value),
+        });
+      }*/
   };
 
-  const submitProject = async () => {
-    const token = localStorage.getItem("token");
+  // Validación en tiempo real
+  const handleCustomerChange = (e: SelectChangeEvent<string>) => {
+    const { name, value } = e.target;
+    setProjectData({
+      ...projectData,
+      [name]: value,
+    });
 
-    if (!address || !startDate || !endDate || !customerId || !supervisorId) {
-      handleSubmit("Por favor completa todos los campos.", "error");
+    setErrors({
+      ...errors,
+      // fkCustomer: validateRole(value),
+    });
+  };
+
+  // Validación en tiempo real
+  const handleSupervisorChange = (e: SelectChangeEvent<string>) => {
+    const { name, value } = e.target;
+    setProjectData({
+      ...projectData,
+      [name]: value,
+    });
+
+    setErrors({
+      ...errors,
+      // fkCustomer: validateRole(value),
+    });
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    /*if (!validateForm()) {
       return;
     }
 
-    try {
-      const response = await fetch(
-        "http://localhost:8080/api/v1/admin/projects/registerProject",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            name,
-            address,
-            startDate,
-            endDate,
-            fkCustomer: Number(customerId),
-            fkSupervisor: Number(supervisorId),
-          }),
-        }
-      );
+    saveCustomer({ refresh, handleClearFields, handleSnackBar, customerData });
+*/
+    handleClose();
+  };
 
-      if (!response.ok) {
-        throw new Error("Error al registrar el proyecto.");
-      }
-
-      handleSubmit("¡Proyecto registrado exitosamente!", "success");
-      clearForm();
-      handleClose();
-    } catch (error) {
-      console.error(error);
-      handleSubmit("Error al registrar el proyecto.", "error");
-    }
+  const handleClearFields = () => {
+    setProjectData({
+      name: "",
+      fkCustomer: 0,
+      address: "",
+      startDate: "",
+      endDate: "",
+      fkSupervisor: 0,
+    });
+    setErrors({
+      name: "",
+      fkCustomer: "",
+      address: "",
+      startDate: "",
+      endDate: "",
+      fkSupervisor: "",
+    });
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-      <DialogTitle>Registrar Nuevo Proyecto</DialogTitle>
+    <Modal open={open} onClose={handleClose}>
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          backgroundColor: "white",
+          padding: 3,
+          borderRadius: 5,
+          width: 400,
+        }}
+      >
+        <form onSubmit={handleFormSubmit} autoComplete="off">
+          <Typography variant="h6" mb={2} textAlign="center">
+            Registrar Proyecto
+          </Typography>
 
-      <DialogContent>
-        <form autoComplete="off">
-          <Stack spacing={2} mt={1}>
-            <FormControl fullWidth>
-              <InputLabel>Cliente</InputLabel>
-              <Select
-                value={customerId}
-                onChange={(e) => setCustomerId(e.target.value)}
-                label="Cliente"
-                MenuProps={{
-                  PaperProps: {
-                    style: {
-                      maxHeight: 300,
-                    },
+          <FormControl fullWidth margin="normal" error={!!errors.fkCustomer}>
+            <InputLabel>Cliente</InputLabel>
+            <Select
+              label="Cliente"
+              variant="standard"
+              value={String(projectData.fkCustomer)}
+              onChange={handleCustomerChange}
+              name="fkCustomer"
+              MenuProps={{
+                PaperProps: {
+                  style: {
+                    maxHeight: 300,
                   },
-                }}
-              >
-                {customers.map((cust) => (
-                  <MenuItem key={cust.id} value={cust.id}>
-                    {cust.firstName} {cust.lastName}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <TextField
-              label="Nombre del Proyecto"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              fullWidth
-              autoComplete="off"
-            />
-
-            <TextField
-              label="Dirección"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              fullWidth
-              autoComplete="off"
-            />
-
-            <TextField
-              label="Fecha de Inicio"
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              InputLabelProps={{ shrink: true }}
-              fullWidth
-              autoComplete="off"
-            />
-
-            <TextField
-              label="Fecha de Finalización"
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              InputLabelProps={{ shrink: true }}
-              fullWidth
-              autoComplete="off"
-            />
-
-            <FormControl fullWidth>
-              <InputLabel>Supervisor</InputLabel>
-              <Select
-                value={supervisorId}
-                onChange={(e) => setSupervisorId(e.target.value)}
-                label="Supervisor"
-                MenuProps={{
-                  PaperProps: {
-                    style: {
-                      maxHeight: 300,
+                },
+              }}
+            >
+              {customers.map((cust) => (
+                <MenuItem
+                  key={cust.customerId}
+                  value={cust.customerId}
+                  sx={{
+                    "&:hover": {
+                      backgroundColor: "#CCC",
                     },
+                  }}
+                >
+                  {cust.customerFullName}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <TextField
+            label="Dirección"
+            variant="standard"
+            fullWidth
+            name="address"
+            value={projectData.address}
+            onChange={handleChange}
+            margin="normal"
+            error={!!errors.address}
+            helperText={errors.address}
+          />
+
+          <TextField
+            label="Fecha de Inicio"
+            type="date"
+            variant="standard"
+            fullWidth
+            name="startDate"
+            value={projectData.startDate}
+            onChange={handleChange}
+            margin="normal"
+            error={!!errors.startDate}
+            helperText={errors.startDate}
+            InputLabelProps={{ shrink: true }}
+          />
+
+          <TextField
+            label="Fecha de Finalización"
+            type="date"
+            variant="standard"
+            fullWidth
+            name="endDate"
+            value={projectData.endDate}
+            onChange={handleChange}
+            margin="normal"
+            error={!!errors.endDate}
+            helperText={errors.endDate}
+            InputLabelProps={{ shrink: true }}
+          />
+
+          <FormControl fullWidth>
+            <InputLabel>Supervisor</InputLabel>
+            <Select
+              label="Supervisor"
+              variant="standard"
+              value={String(projectData.fkSupervisor)}
+              onChange={handleSupervisorChange}
+              name="fkEmployee"
+              MenuProps={{
+                PaperProps: {
+                  style: {
+                    maxHeight: 300,
                   },
-                }}
-              >
-                {supervisors.map((sup) => (
-                  <MenuItem key={sup.id} value={sup.id}>
-                    {sup.firstName} {sup.lastName}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Stack>
+                },
+              }}
+            >
+              {supervisors.map((sup) => (
+                <MenuItem key={sup.employeeId} value={sup.employeeId}>
+                  {sup.employeeFullName}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <Box display="flex" justifyContent="right" mt={2}>
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={handleClearFields}
+              sx={{ marginRight: 2 }}
+            >
+              Limpiar Campos
+            </Button>
+            <Button variant="contained" color="primary" type="submit">
+              Registrar
+            </Button>
+          </Box>
         </form>
-      </DialogContent>
-
-      <DialogActions>
-        <Button onClick={clearForm} variant="outlined" color="secondary">
-          Limpiar
-        </Button>
-        <Button onClick={submitProject} variant="contained" color="primary">
-          Registrar
-        </Button>
-      </DialogActions>
-    </Dialog>
+      </Box>
+    </Modal>
   );
 }

@@ -64,8 +64,8 @@ public class CustomerService
         );
     }
 
-    public Optional<List<CustomerDTO>> getCustomerFullNameDto()
+    public Optional<List<CustomerDTO>> getCustomerFullName()
     {
-        return customerRepository.getCustomerFullNameDto();
+        return customerRepository.getCustomerFullName();
     }
 }

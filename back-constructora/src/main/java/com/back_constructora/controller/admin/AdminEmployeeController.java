@@ -112,11 +112,11 @@ public class AdminEmployeeController
         return ResponseEntity.ok("Usuario eliminado exitosamente.");
     }
 
-    @GetMapping("/findAllSupervisors")
+    @GetMapping("/getSupervisors")
     public ResponseEntity<ApiResponse<?>> findAllSupervisors() {
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(new ApiResponse<>("Todos los supervisores de obra", employeeService.getSuperviFullNameDto()));
+            .body(new ApiResponse<>("Todos los supervisores de obra", employeeService.getSuperviFullName()));
     }
 
     @GetMapping

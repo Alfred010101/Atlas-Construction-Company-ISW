@@ -17,3 +17,13 @@ export interface Customer {
   customerAddress?: string;
   customerPhone?: string;
 }
+
+export interface Project extends Employee, Customer {
+  projectId?: number;
+  projectName?: string;
+  projectFkCustomer?: number;
+  projectAddress?: string;
+  projectStartDate?: string;
+  projectEndDate?: string;
+  projectFkSupervisor?: number;
+}

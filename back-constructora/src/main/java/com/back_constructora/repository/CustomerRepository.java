@@ -42,8 +42,8 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer>
     );
 
     @Query(value = """
-        SELECT id, first_name AS firstName, last_name AS lastName
+        SELECT id AS customerId, CONCAT(first_name, ' ', last_name) AS customerFullName
         FROM customers;
         """, nativeQuery = true)
-    Optional<List<CustomerDTO>> getCustomerFullNameDto();
+    Optional<List<CustomerDTO>> getCustomerFullName();
 }

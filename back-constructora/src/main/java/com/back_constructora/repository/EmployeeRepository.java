@@ -85,9 +85,9 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer>
     void deleteByUsername(@Param("username") String username);
 
     @Query(value = """
-        SELECT id, first_name AS firstName, last_name AS lastName
+        SELECT  id AS employeeId, CONCAT(first_name, ' ', last_name) AS employeeFullName
         FROM employees
         WHERE role = 'CONSTRUCTION_SUPERVISOR';
         """, nativeQuery = true)
-    Optional<List<EmployeeDTO>> getSuperviFullNameDto();
+    Optional<List<EmployeeDTO>> getSuperviFullName();
 }

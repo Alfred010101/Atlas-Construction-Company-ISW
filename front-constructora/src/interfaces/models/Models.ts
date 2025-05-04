@@ -13,3 +13,12 @@ export interface Customer {
   address: string;
   phone: string;
 }
+
+export interface Project {
+  name: string;
+  fkCustomer: number;
+  address: string;
+  startDate: string;
+  endDate: string;
+  fkSupervisor: number;
+}

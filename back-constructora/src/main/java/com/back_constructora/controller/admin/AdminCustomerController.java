@@ -105,9 +105,9 @@ public class AdminCustomerController
     }
 
     @GetMapping("/getCustomers")
-    public ResponseEntity<ApiResponse<?>> getAllCustomersFromNewProject() {
+    public ResponseEntity<ApiResponse<?>> getAllCustomers() {
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(new ApiResponse<>("Todos los supervisores de obra", customerService.getCustomerFullNameDto()));
+            .body(new ApiResponse<>("Todos los clientes", customerService.getCustomerFullName()));
     }
 }

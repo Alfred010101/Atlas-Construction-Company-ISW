@@ -106,8 +106,8 @@ public class EmployeeService
         employeeRepository.deleteByUsername(username);
     }
 
-    public Optional<List<EmployeeDTO>> getSuperviFullNameDto()
+    public Optional<List<EmployeeDTO>> getSuperviFullName()
     {
-        return employeeRepository.getSuperviFullNameDto();
+        return employeeRepository.getSuperviFullName();
     }
 }

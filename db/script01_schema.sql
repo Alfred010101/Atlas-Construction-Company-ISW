@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS construction_company.customers(
 
 CREATE TABLE IF NOT EXISTS construction_company.projects(
 	id INT AUTO_INCREMENT NOT NULL,
-	`name` VARCHAR(63),
+	`name` VARCHAR(63) NOT NULL UNIQUE,
     fk_customer INT NOT NULL,    
     address VARCHAR(255) NOT NULL UNIQUE,
     start_date DATE NOT NULL,
