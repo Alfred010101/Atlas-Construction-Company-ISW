@@ -68,31 +68,39 @@ public class AdminCustomerController
             ));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getEmployeeById(@PathVariable("id") Integer id) 
+    @GetMapping("/find/{id}")
+    public ResponseEntity<?> getCustomerById(@PathVariable("id") Integer id) 
     {
         return ResponseEntity
-            .status(HttpStatus.CREATED)
+            .status(HttpStatus.OK)
             .body(new ApiResponse<>(
-                "Customer encontado", 
-                customerService
-                    .findById(id)
+                "Clinete encontrado", 
+                customerService.findById(id)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND))
                 )
             );
     }
 
-    @PutMapping("/updateCustomer")
-    public ResponseEntity<ApiResponse<String>> updateCustomer(
-       // @PathVariable("id") String id,
-        @RequestBody Customer updateCustomer) 
+    @PutMapping("/update/{id}")
+    public ResponseEntity<ObjectNode> update(
+            @PathVariable("id") Integer id,
+            @RequestBody Customer updateRequest) 
     {
+        ObjectNode json = objectMapper.createObjectNode();
         try {
-            customerService.updateUser(updateCustomer);
-            return ResponseEntity.ok(new ApiResponse<>("Cliente actualizado correctamente.", null));
+            if(customerService.update(id, updateRequest) > 0)  
+            {      
+                json.put("message", "Cliente actualizado correctamente.");
+                return ResponseEntity.ok(json);
+            }else
+            {
+                json.put("error", "Error al actualizar cliente.");
+                return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(json);
+            }
         } catch (Exception e) {
+            json.put("error", "Error al actualizar cliente: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse<>("Error al actualizar cliente: " + e.getMessage(), null));
+                    .body(json);
         }
     }
 

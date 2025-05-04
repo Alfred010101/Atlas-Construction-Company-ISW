@@ -33,7 +33,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer>
                 address = :address
             WHERE id = :id
             """, nativeQuery = true)
-    void updateCustomer(
+    int updateCustomer(
         @Param("id") Integer id,
         @Param("firstName") String firstName,
         @Param("lastName") String lastName,

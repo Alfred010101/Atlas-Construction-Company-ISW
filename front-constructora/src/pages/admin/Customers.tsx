@@ -42,8 +42,8 @@ export default function Customers() {
 
   const [openCreateModal, setOpenCreateModal] = useState(false);
 
-  const [openEditDialog, setOpenEditDialog] = useState(false);
-  const [idToEdit, setIDToEdit] = useState<number | null>(null);
+  const [openEditModal, setOpenEditModal] = useState(false);
+  const [idToEdit, setIDToEdit] = useState(0);
 
   const handleSnackBar = (text: string, type: "success" | "error") => {
     setSnackbarMessage(text);
@@ -151,7 +151,7 @@ export default function Customers() {
                       color="primary"
                       onClick={() => {
                         setIDToEdit(customer.customerId || 0);
-                        setOpenEditDialog(true);
+                        setOpenEditModal(true);
                       }}
                       sx={{
                         "&:hover": { backgroundColor: "#d4e6f1" },
@@ -182,12 +182,14 @@ export default function Customers() {
         />
 
         <EditCustomerModal
-          open={openEditDialog}
-          customerId={idToEdit}
-          onClose={() => setOpenEditDialog(false)}
-          onSave={() => {
-            setOpenEditDialog(false);
+          open={openEditModal}
+          handleClose={() => {
+            setOpenEditModal(false);
+            setIDToEdit(0);
           }}
+          refresh={refreshFetchCustomers}
+          handleSnackBar={handleSnackBar}
+          customerId={idToEdit}
         />
 
         {/* Snackbar de log */}

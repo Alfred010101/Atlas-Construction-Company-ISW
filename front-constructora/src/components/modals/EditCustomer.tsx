@@ -1,177 +1,216 @@
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Button,
-  Stack,
-  CircularProgress,
-} from "@mui/material";
+import { Modal, Box, Typography, TextField, Button } from "@mui/material";
 import { useEffect, useState } from "react";
+import { Customer } from "../../interfaces/ModelsTypes";
+import { Customer as CustomerFull } from "../../interfaces/models/Models";
+import { getCustomer, updateCustomer } from "../../request/Customer";
+import {
+  validateAddress,
+  validateName,
+  validatePhoneMX,
+} from "../../utils/validations";
 
 interface EditCustomerModalProps {
   open: boolean;
-  customerId: number | null;
-  onClose: () => void;
-  onSave: () => void;
+  customerId: number;
+  handleClose: () => void;
+  refresh: () => void;
+  handleSnackBar: (text: string, type: "success" | "error") => void;
 }
 
-export default function EditCustomer({
+const EditCustomer = ({
   open,
   customerId,
-  onClose,
-  onSave,
-}: EditCustomerModalProps) {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [address, setAddress] = useState("");
-  const [phone, setPhone] = useState("");
-  const [loading, setLoading] = useState(false);
+  handleClose,
+  refresh,
+  handleSnackBar,
+}: EditCustomerModalProps) => {
+  const [customerData, setCustomerData] = useState<Customer>({
+    customerFirstName: "",
+    customerLastName: "",
+    customerAddress: "",
+    customerPhone: "",
+  });
+
+  const [errors, setErrors] = useState({
+    customerFirstName: "",
+    customerLastName: "",
+    customerAddress: "",
+    customerPhone: "",
+  });
 
   useEffect(() => {
-    const fetchCustomer = async () => {
-      if (customerId == null) return;
-
-      try {
-        setLoading(true);
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(
-          `http://localhost:8080/api/v1/admin/customers/${customerId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Error al obtener los datos del cliente.");
-        }
-
-        const data = await response.json();
-
-        console.log(data);
-        setFirstName(data.data.firstName);
-        setLastName(data.data.lastName);
-        setAddress(data.data.address);
-        setPhone(data.data.phone);
-      } catch (error) {
-        console.error("Error al obtener cliente:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (open) {
-      fetchCustomer();
+    if (customerId) {
+      getCustomer({ customerId, setCustomerData, handleSnackBar });
     }
-  }, [customerId, open]);
+  }, [customerId]);
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Validación en tiempo real
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
 
-    if (customerId == null) return;
+    setCustomerData({
+      ...customerData,
+      [name]: value,
+    });
 
-    try {
-      const token = localStorage.getItem("token");
-
-      const id = customerId;
-      const response = await fetch(
-        `http://localhost:8080/api/v1/admin/customers/updateCustomer`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            firstName,
-            lastName,
-            address,
-            phone,
-            id,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Error al actualizar el cliente.");
-      }
-
-      onSave(); // Para recargar tabla
-      onClose();
-    } catch (error) {
-      console.error("Error al actualizar cliente:", error);
+    if (name === "customerFirstName" || name === "customerLastName") {
+      setErrors({
+        ...errors,
+        [name]: validateName(value),
+      });
+    } else if (name === "customerAddress") {
+      setErrors({
+        ...errors,
+        [name]: validateAddress(value),
+      });
+    } else if (name === "customerPhone") {
+      setErrors({
+        ...errors,
+        [name]: validatePhoneMX(value),
+      });
     }
   };
 
+  const validateForm = () => {
+    const newErrors = {
+      customerFirstName: validateName(customerData.customerFirstName || ""),
+      customerLastName: validateName(customerData.customerLastName || ""),
+      customerAddress: validateAddress(customerData.customerAddress || ""),
+      customerPhone: validatePhoneMX(customerData.customerPhone || ""),
+    };
+
+    setErrors(newErrors);
+
+    return !Object.values(newErrors).some((error) => error);
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      handleSnackBar("Porfavor ingrese datos validos", "error");
+      return;
+    }
+
+    const payload: Partial<CustomerFull> = {
+      firstName: customerData.customerFirstName,
+      lastName: customerData.customerLastName,
+      address: customerData.customerAddress,
+      phone: customerData.customerPhone,
+    };
+
+    updateCustomer({ handleSnackBar, payload, customerId, refresh });
+    handleClose();
+  };
+
+  const handleClearFields = () => {
+    setCustomerData({
+      customerFirstName: "",
+      customerLastName: "",
+      customerAddress: "",
+      customerPhone: "",
+    });
+    setErrors({
+      customerFirstName: "",
+      customerLastName: "",
+      customerAddress: "",
+      customerPhone: "",
+    });
+  };
+
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>Editar Cliente</DialogTitle>
+    <Modal
+      open={open}
+      onClose={() => {
+        handleClearFields();
+        handleClose();
+      }}
+    >
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          backgroundColor: "white",
+          padding: 3,
+          borderRadius: 5,
+          width: 650,
+        }}
+      >
+        <form onSubmit={handleFormSubmit} autoComplete="off">
+          <Typography variant="h6" mb={2} textAlign="center">
+            Editar Cliente
+          </Typography>
 
-      <DialogContent>
-        {loading ? (
-          <Stack alignItems="center" mt={4}>
-            <CircularProgress />
-          </Stack>
-        ) : (
-          <form onSubmit={onSubmit} autoComplete="off">
-            <Stack spacing={2} mt={1}>
-              <TextField
-                label="Nombre"
-                variant="outlined"
-                fullWidth
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                autoComplete="off"
-              />
+          <TextField
+            label="Nombre(s)"
+            variant="standard"
+            fullWidth
+            name="customerFirstName"
+            value={customerData.customerFirstName}
+            onChange={handleChange}
+            margin="normal"
+            error={!!errors.customerFirstName}
+            helperText={errors.customerFirstName}
+          />
 
-              <TextField
-                label="Apellido"
-                variant="outlined"
-                fullWidth
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                autoComplete="off"
-              />
+          <TextField
+            label="Apellido(s)"
+            variant="standard"
+            fullWidth
+            name="customerLastName"
+            value={customerData.customerLastName}
+            onChange={handleChange}
+            margin="normal"
+            error={!!errors.customerLastName}
+            helperText={errors.customerLastName}
+          />
 
-              <TextField
-                label="Dirección"
-                variant="outlined"
-                fullWidth
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                autoComplete="off"
-              />
+          <TextField
+            label="Dirección"
+            variant="standard"
+            fullWidth
+            name="customerAddress"
+            value={customerData.customerAddress}
+            onChange={handleChange}
+            margin="normal"
+            error={!!errors.customerAddress}
+            helperText={errors.customerAddress}
+          />
 
-              <TextField
-                label="Teléfono"
-                variant="outlined"
-                fullWidth
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                autoComplete="off"
-              />
-            </Stack>
+          <TextField
+            label="Teléfono"
+            variant="standard"
+            fullWidth
+            name="customerPhone"
+            value={customerData.customerPhone}
+            onChange={handleChange}
+            margin="normal"
+            error={!!errors.customerPhone}
+            helperText={errors.customerPhone}
+          />
 
-            <DialogActions sx={{ mt: 2 }}>
-              <Button
-                variant="outlined"
-                color="secondary"
-                onClick={onClose}
-                sx={{ marginLeft: 2 }}
-              >
-                Cancelar
-              </Button>
-              <Button type="submit" variant="contained" color="primary">
-                Guardar cambios
-              </Button>
-            </DialogActions>
-          </form>
-        )}
-      </DialogContent>
-    </Dialog>
+          <Box display="flex" justifyContent="right" mt={2}>
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={() => {
+                handleClearFields();
+                handleClose();
+              }}
+              sx={{ marginRight: 2 }}
+            >
+              Cancelar
+            </Button>
+            <Button variant="contained" color="primary" type="submit">
+              Guardar Cambios
+            </Button>
+          </Box>
+        </form>
+      </Box>
+    </Modal>
   );
-}
+};
+
+export default EditCustomer;

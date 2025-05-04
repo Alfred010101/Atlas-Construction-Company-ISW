@@ -190,7 +190,7 @@ const EditEmployee = ({
       >
         <form onSubmit={handleFormSubmit} autoComplete="off">
           <Typography variant="h6" mb={2} textAlign="center">
-            Editar Usuario
+            Editar Empleado
           </Typography>
 
           <TextField

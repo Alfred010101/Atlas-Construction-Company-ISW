@@ -75,7 +75,7 @@ public class AdminEmployeeController
         return ResponseEntity
             .status(HttpStatus.OK)
             .body(new ApiResponse<>(
-                "Empleado encotrado", 
+                "Empleado encontrado", 
                 employeeService.findByUsernameAllProps(username)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND))
                 )

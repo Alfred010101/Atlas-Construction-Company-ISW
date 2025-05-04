@@ -43,10 +43,20 @@ public class CustomerService
         return customerRepository.findById(id);
     }
 
-    public void updateUser(Customer request)
+    public int update(int id, Customer request)
     {
-        customerRepository.updateCustomer(
-            request.getId(),
+        if(request == null) 
+        {
+            throw new IllegalArgumentException("Todos los campos son requeridos");
+        }
+
+        Validations.validateName(request.getFirstName());
+        Validations.validateName(request.getLastName());
+        Validations.validatePhoneMX(request.getPhone());
+        Validations.validateAddress(request.getAddress());
+
+        return customerRepository.updateCustomer(
+            id,
             request.getFirstName(),
             request.getLastName(),
             request.getPhone(),
