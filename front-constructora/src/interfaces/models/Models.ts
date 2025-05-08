@@ -28,3 +28,12 @@ export interface Warehouse {
   address: string;
   fkSupervisor: number;
 }
+
+export interface Supplier {
+  name: string;
+  address: string;
+  phone: string;
+  contactName: string;
+  contactEmail: string;
+  contactPhone: string;
+}

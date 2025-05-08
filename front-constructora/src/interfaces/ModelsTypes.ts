@@ -34,3 +34,13 @@ export interface Warehouse extends Employee {
   warehouseAddress?: string;
   warehouseFkSupervisor?: number;
 }
+
+export interface Supplier {
+  supplierId?: number;
+  supplierName?: string;
+  supplierAddress?: string;
+  supplierPhone?: string;
+  supplierContactName?: string;
+  supplierContactEmail?: string;
+  supplierContactPhone?: string;
+}
