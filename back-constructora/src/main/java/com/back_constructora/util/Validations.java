@@ -1,4 +1,6 @@
 package com.back_constructora.util;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.regex.Pattern;
 
 import com.back_constructora.model.Role;
@@ -89,5 +91,34 @@ public class Validations
     {
         if (address == null || address.trim().isEmpty()) 
             throw new IllegalArgumentException( "$Direccion: Este campo es requerido");
+    }
+  
+  // Validación para fk(number != 0)
+    public static void validateFk (String campo, Integer fk)
+    {
+        if (fk < 0) 
+            throw new IllegalArgumentException("$" + campo + ": Este campo es requerido");
+    }
+
+    public static void validateStartDate(LocalDate startDate) 
+    {
+        if (startDate == null)
+            throw new IllegalArgumentException("$Fecha inicial: Este campo es requerido");
+    }
+
+    public static void validateEndDate(LocalDate startDate, LocalDate endDate) {
+        validateStartDate(startDate);
+
+        if (endDate == null) 
+            throw new IllegalArgumentException("$Fecha fin: Este campo es requerido");
+        
+
+        if (endDate.isBefore(startDate))
+            throw new IllegalArgumentException("$Fecha fin: La fecha de finalización no puede ser anterior a la de inicio.");
+        
+
+        long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
+        if (daysBetween < 7)
+            throw new IllegalArgumentException("$Fecha fin: El proyecto debe tener una duración mínima de una semana.");
     }
 }

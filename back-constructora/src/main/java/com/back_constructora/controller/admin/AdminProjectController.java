@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -16,7 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.back_constructora.dto.ProjectDTO;
 import com.back_constructora.model.Project;
 import com.back_constructora.service.ProjectService;
-import com.back_constructora.util.ApiResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,13 +29,20 @@ public class AdminProjectController
 {
     private final ProjectService projectService;
 
+    @Autowired 
+    private ObjectMapper objectMapper;
+
     @PostMapping("/create")
-    public ResponseEntity<ApiResponse<Project>> createEmployee(@Validated @RequestBody Project project) 
+    public ResponseEntity<ObjectNode> save(@Validated @RequestBody Project project) 
     {
-        Project savedProject = projectService.save(project);
+        projectService.save(project);
+
+        ObjectNode json = objectMapper.createObjectNode();
+        json.put("message", "Registro exitoso!");
+        
         return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(new ApiResponse<>("Proyecto creado satisfactoriamente", savedProject));
+            .status(HttpStatus.CREATED)
+            .body(json);
     }
 
     @GetMapping("/all")

@@ -34,4 +34,5 @@ public interface ProjectRepository extends JpaRepository<Project, Integer>
         """, nativeQuery = true)
     Optional<List<ProjectDTO>> findAllAsList();
     
+    boolean existsByName(String username);  
 }
