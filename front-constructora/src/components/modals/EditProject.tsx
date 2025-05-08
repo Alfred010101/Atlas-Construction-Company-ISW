@@ -20,21 +20,23 @@ import {
   validateName,
   validateStartDate,
 } from "../../utils/validations";
-import { saveProject } from "../../request/Project";
+import { getProject, updateProject } from "../../request/Project";
 
-interface RegisterProjectModalProps {
+interface EditProjectModalProps {
   open: boolean;
+  projectId: number;
   handleClose: () => void;
   refresh: () => void;
   handleSnackBar: (text: string, type: "success" | "error") => void;
 }
 
-export default function RegisterProjectModal({
+const EditProject = ({
   open,
+  projectId,
   handleClose,
   refresh,
   handleSnackBar,
-}: RegisterProjectModalProps) {
+}: EditProjectModalProps) => {
   const [projectData, setProjectData] = useState<ProjectFull>({
     name: "",
     fkCustomer: 0,
@@ -89,7 +91,12 @@ export default function RegisterProjectModal({
       fetchCustomers();
       fetchSupervisors();
     }
-  }, [open]);
+
+    if (projectId) {
+      getProject({ projectId, setProjectData, handleSnackBar });
+    }
+    console.log(projectData);
+  }, [projectId]);
 
   // Validación en tiempo real
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -169,7 +176,7 @@ export default function RegisterProjectModal({
       return;
     }
 
-    saveProject({ refresh, handleClearFields, handleSnackBar, projectData });
+    updateProject({ refresh, projectId, handleSnackBar, projectData });
     handleClose();
   };
 
@@ -193,7 +200,13 @@ export default function RegisterProjectModal({
   };
 
   return (
-    <Modal open={open} onClose={handleClose}>
+    <Modal
+      open={open}
+      onClose={() => {
+        handleClearFields();
+        handleClose();
+      }}
+    >
       <Box
         sx={{
           position: "absolute",
@@ -208,7 +221,7 @@ export default function RegisterProjectModal({
       >
         <form onSubmit={handleFormSubmit} autoComplete="off">
           <Typography variant="h6" mb={2} textAlign="center">
-            Registrar Proyecto
+            Editar Proyecto
           </Typography>
 
           <FormControl fullWidth margin="normal" error={!!errors.fkCustomer}>
@@ -226,6 +239,7 @@ export default function RegisterProjectModal({
                   },
                 },
               }}
+              disabled
             >
               {customers.map((cust) => (
                 <MenuItem
@@ -328,21 +342,27 @@ export default function RegisterProjectModal({
               </Typography>
             )}
           </FormControl>
+
           <Box display="flex" justifyContent="right" mt={2}>
             <Button
               variant="outlined"
               color="secondary"
-              onClick={handleClearFields}
+              onClick={() => {
+                handleClearFields();
+                handleClose();
+              }}
               sx={{ marginRight: 2 }}
             >
-              Limpiar Campos
+              Cancelar
             </Button>
             <Button variant="contained" color="primary" type="submit">
-              Registrar
+              Guardar Cambios
             </Button>
           </Box>
         </form>
       </Box>
     </Modal>
   );
-}
+};
+
+export default EditProject;

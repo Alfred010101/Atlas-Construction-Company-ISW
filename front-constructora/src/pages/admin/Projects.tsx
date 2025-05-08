@@ -25,6 +25,7 @@ import { useAuth } from "../../context/AuthContext";
 import RegisterProjectModal from "../../components/modals/RegisterProject";
 import { getProjects } from "../../request/Project";
 import { Project } from "../../interfaces/ModelsTypes";
+import EditProjectModal from "../../components/modals/EditProject";
 
 export default function Projects() {
   const { navItems } = useMenuConfig();
@@ -40,6 +41,9 @@ export default function Projects() {
   );
 
   const [openCreateModal, setOpenCreateModal] = useState(false);
+
+  const [openEditModal, setOpenEditModal] = useState(false);
+  const [idToEdit, setIdToEdit] = useState<number>(0);
 
   const handleSnackBar = (text: string, type: "success" | "error") => {
     setSnackbarMessage(text);
@@ -152,8 +156,8 @@ export default function Projects() {
                     <IconButton
                       color="primary"
                       onClick={() => {
-                        //setIDToEdit(customer.customerId || 0);
-                        //setOpenEditModal(true);
+                        setIdToEdit(project.projectId || 0);
+                        setOpenEditModal(true);
                       }}
                       sx={{
                         "&:hover": { backgroundColor: "#d4e6f1" },
@@ -181,6 +185,17 @@ export default function Projects() {
           handleClose={() => setOpenCreateModal(false)}
           refresh={refreshFetchProjects}
           handleSnackBar={handleSnackBar}
+        />
+
+        <EditProjectModal
+          open={openEditModal}
+          handleClose={() => {
+            setOpenEditModal(false);
+            setIdToEdit(0);
+          }}
+          refresh={refreshFetchProjects}
+          handleSnackBar={handleSnackBar}
+          projectId={idToEdit}
         />
 
         {/* Snackbar de log */}

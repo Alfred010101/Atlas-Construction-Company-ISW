@@ -48,4 +48,43 @@ public class ProjectService
         return projectRepository.findAllAsList() ;
     }
 
+    public Optional<Project> findById(Integer id)
+    {
+        return projectRepository.findById(id);
+    }
+
+    public int updateProject(Integer id, Project request) 
+    {
+        if(request == null) 
+        {
+            throw new IllegalArgumentException("Todos los campos son requeridos");
+        }
+
+        Validations.validateName(request.getName());
+        Validations.validateAddress(request.getAddress());
+        Validations.validateFk("Cliente", request.getFkCustomer());
+        Validations.validateFk("Supervisor", request.getFkSupervisor());
+        Validations.validateStartDate(request.getStartDate());
+        Validations.validateEndDate(request.getStartDate(), request.getEndDate());
+
+
+        if(projectRepository.existsByName(request.getName())) 
+        {
+            Project project = projectRepository.findById(id).orElse(null);
+            if(project != null && project.getName().compareTo(request.getName()) != 0)
+            {
+                throw new IllegalStateException("El nombre de proyecto no se encuentra disponible");
+            }    
+        }
+
+        return projectRepository.updateProject(
+            id, 
+            request.getName(),
+            request.getFkCustomer(),
+            request.getAddress(),
+            request.getStartDate(),
+            request.getEndDate(),
+            request.getFkSupervisor()
+        );
+    }
 }

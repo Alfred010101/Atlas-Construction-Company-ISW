@@ -1,11 +1,15 @@
 package com.back_constructora.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.back_constructora.dto.ProjectDTO;
 import com.back_constructora.model.Project;
@@ -35,4 +39,26 @@ public interface ProjectRepository extends JpaRepository<Project, Integer>
     Optional<List<ProjectDTO>> findAllAsList();
     
     boolean existsByName(String username);  
+
+    @Modifying
+    @Transactional
+    @Query(value = """
+            UPDATE projects 
+            SET name = :name,
+                fk_customer = :fkCustomer,
+                address = :address,
+                start_date = :startDate,
+                end_date = :endDate,
+                fk_supervisor = :fkSupervisor
+            WHERE id = :id
+            """, nativeQuery = true)
+    int updateProject(
+        @Param("id") Integer id,
+        @Param("name") String name,
+        @Param("fkCustomer") Integer fkCustomer,
+        @Param("address") String address,
+        @Param("startDate") LocalDate startDate, 
+        @Param("endDate") LocalDate endDate, 
+        @Param("fkSupervisor") Integer fkSupervisor            
+    );
 }

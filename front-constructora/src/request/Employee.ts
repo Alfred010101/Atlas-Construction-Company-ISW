@@ -145,7 +145,6 @@ export const updateEmployee = async ({
   refresh,
 }: HandleUpdateEmployeeProps) => {
   const token = localStorage.getItem("token");
-  console.log(payload);
   try {
     const response = await fetch(
       `http://localhost:8080/api/admin/v1/employees/update/${encodeURIComponent(

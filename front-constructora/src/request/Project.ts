@@ -95,3 +95,84 @@ export const getProjects = async ({
     if (handleSnackBar) handleSnackBar(String(error), "error");
   }
 };
+
+interface HandleGetProjectProps {
+  projectId: number;
+  setProjectData: (value: React.SetStateAction<ProjectFull>) => void;
+  handleSnackBar: (text: string, type: "success" | "error") => void;
+}
+
+export const getProject = async ({
+  projectId,
+  setProjectData,
+  handleSnackBar,
+}: HandleGetProjectProps) => {
+  const token = localStorage.getItem("token");
+  fetch(
+    `http://localhost:8080/api/admin/v1/projects/find/${encodeURIComponent(
+      projectId
+    )}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  )
+    .then((res) => res.json())
+    .then((data) => {
+      setProjectData({
+        name: data.data.name,
+        fkCustomer: data.data.fkCustomer,
+        address: data.data.address,
+        startDate: data.data.startDate,
+        endDate: data.data.endDate,
+        fkSupervisor: data.data.fkSupervisor,
+      });
+    })
+    .catch((err) => {
+      handleSnackBar(String(err), "error");
+    });
+};
+
+interface HandleUpdateProjectProps {
+  projectData: ProjectFull;
+  handleSnackBar: (text: string, type: "success" | "error") => void;
+  projectId: number;
+  refresh: () => void;
+}
+
+export const updateProject = async ({
+  projectData,
+  handleSnackBar,
+  projectId,
+  refresh,
+}: HandleUpdateProjectProps) => {
+  const token = localStorage.getItem("token");
+  try {
+    const response = await fetch(
+      `http://localhost:8080/api/admin/v1/projects/update/${encodeURIComponent(
+        projectId || ""
+      )}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(projectData),
+      }
+    );
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error);
+    }
+
+    handleSnackBar(data.message, "success");
+    refresh();
+  } catch (error) {
+    handleSnackBar(String(error), "error");
+  }
+};
