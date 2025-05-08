@@ -22,3 +22,9 @@ export interface Project {
   endDate: string;
   fkSupervisor: number;
 }
+
+export interface Warehouse {
+  name: string;
+  address: string;
+  fkSupervisor: number;
+}

@@ -87,7 +87,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer>
     @Query(value = """
         SELECT  id AS employeeId, CONCAT(first_name, ' ', last_name) AS employeeFullName
         FROM employees
-        WHERE role = 'CONSTRUCTION_SUPERVISOR';
+        WHERE role = :role;
         """, nativeQuery = true)
-    Optional<List<EmployeeDTO>> getSuperviFullName();
+    Optional<List<EmployeeDTO>> getListByRole(@Param("role") String role);
 }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.back_constructora.dto.EmployeeDTO;
 import com.back_constructora.model.Employee;
+import com.back_constructora.model.Role;
 import com.back_constructora.repository.EmployeeRepository;
 import com.back_constructora.util.Validations;
 
@@ -106,8 +107,13 @@ public class EmployeeService
         employeeRepository.deleteByUsername(username);
     }
 
-    public Optional<List<EmployeeDTO>> getSuperviFullName()
+    public Optional<List<EmployeeDTO>> getProjectFullName()
     {
-        return employeeRepository.getSuperviFullName();
+        return employeeRepository.getListByRole(Role.CONSTRUCTION_SUPERVISOR.name());
+    }
+
+    public Optional<List<EmployeeDTO>> getWarehouseFullName()
+    {
+        return employeeRepository.getListByRole(Role.WAREHOUSE_SUPERVISOR.name());
     }
 }

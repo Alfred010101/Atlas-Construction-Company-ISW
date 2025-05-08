@@ -15,12 +15,12 @@ interface RegisterCustomerModalProps {
   handleSnackBar: (text: string, type: "success" | "error") => void;
 }
 
-export default function RegisterCustomer({
+const RegisterCustomer = ({
   open,
   handleClose,
   refresh,
   handleSnackBar,
-}: RegisterCustomerModalProps) {
+}: RegisterCustomerModalProps) => {
   const [customerData, setCustomerData] = useState<CustomerFull>({
     firstName: "",
     lastName: "",
@@ -187,4 +187,6 @@ export default function RegisterCustomer({
       </Box>
     </Modal>
   );
-}
+};
+
+export default RegisterCustomer;

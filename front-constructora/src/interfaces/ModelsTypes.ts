@@ -27,3 +27,10 @@ export interface Project extends Employee, Customer {
   projectEndDate?: string;
   projectFkSupervisor?: number;
 }
+
+export interface Warehouse extends Employee {
+  warehouseId?: number;
+  warehouseName?: string;
+  warehouseAddress?: string;
+  warehouseFkSupervisor?: number;
+}
