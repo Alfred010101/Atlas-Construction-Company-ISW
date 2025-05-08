@@ -22,7 +22,7 @@ public class AdminProjectController
 {
     private final ProjectService projectService;
 
-    @PostMapping("/registerProject")
+    @PostMapping("/create")
     public ResponseEntity<ApiResponse<Project>> createEmployee(@Validated @RequestBody Project project) 
     {
         Project savedProject = projectService.save(project);

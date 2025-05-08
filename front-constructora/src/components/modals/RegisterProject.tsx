@@ -8,12 +8,19 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  Stack,
   SelectChangeEvent,
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import { Project as ProjectFull } from "../../interfaces/models/Models";
 import { Customer, Employee } from "../../interfaces/ModelsTypes";
+import {
+  validateAddress,
+  validateEndDate,
+  validateFk,
+  validateName,
+  validateStartDate,
+} from "../../utils/validations";
+import { saveProject } from "../../request/Project";
 
 interface RegisterProjectModalProps {
   open: boolean;
@@ -86,68 +93,82 @@ export default function RegisterProjectModal({
 
   // Validación en tiempo real
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    /* const { name, value } = e.target;
-  
-      setCustomerData({
-        ...customerData,
-        [name]: value,
+    const { name, value } = e.target;
+
+    setProjectData({
+      ...projectData,
+      [name]: value,
+    });
+
+    if (name === "name") {
+      setErrors({
+        ...errors,
+        [name]: validateName(value),
       });
-  
-      if (name === "firstName" || name === "lastName") {
-        setErrors({
-          ...errors,
-          [name]: validateName(value),
-        });
-      } else if (name === "address") {
-        setErrors({
-          ...errors,
-          [name]: validateAddress(value),
-        });
-      } else if (name === "phone") {
-        setErrors({
-          ...errors,
-          [name]: validatePhoneMX(value),
-        });
-      }*/
+    } else if (name === "address") {
+      setErrors({
+        ...errors,
+        [name]: validateAddress(value),
+      });
+    } else if (name === "startDate") {
+      setErrors({
+        ...errors,
+        startDate: validateStartDate(value),
+        endDate:
+          projectData.endDate && validateEndDate(value, projectData.endDate),
+      });
+    } else if (name === "endDate") {
+      setErrors({
+        ...errors,
+        [name]: validateEndDate(projectData.startDate, value),
+      });
+    }
   };
 
   // Validación en tiempo real
-  const handleCustomerChange = (e: SelectChangeEvent<string>) => {
+  const handleFkChange = (e: SelectChangeEvent<string>) => {
     const { name, value } = e.target;
     setProjectData({
       ...projectData,
-      [name]: value,
+      [name]: Number(value),
     });
 
-    setErrors({
-      ...errors,
-      // fkCustomer: validateRole(value),
-    });
+    if (name === "fkCustomer") {
+      setErrors({
+        ...errors,
+        fkCustomer: validateFk(Number(value)),
+      });
+    } else if (name === "fkSupervisor") {
+      setErrors({
+        ...errors,
+        fkSupervisor: validateFk(Number(value)),
+      });
+    }
   };
 
-  // Validación en tiempo real
-  const handleSupervisorChange = (e: SelectChangeEvent<string>) => {
-    const { name, value } = e.target;
-    setProjectData({
-      ...projectData,
-      [name]: value,
-    });
+  const validateForm = () => {
+    const newErrors = {
+      name: validateName(projectData.name),
+      fkCustomer: validateFk(projectData.fkCustomer),
+      address: validateAddress(projectData.address),
+      startDate: validateStartDate(projectData.startDate),
+      endDate: validateEndDate(projectData.startDate, projectData.endDate),
+      fkSupervisor: validateFk(projectData.fkSupervisor),
+    };
 
-    setErrors({
-      ...errors,
-      // fkCustomer: validateRole(value),
-    });
+    setErrors(newErrors);
+
+    return !Object.values(newErrors).some((error) => error);
   };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    /*if (!validateForm()) {
+    if (!validateForm()) {
       return;
     }
 
-    saveCustomer({ refresh, handleClearFields, handleSnackBar, customerData });
-*/
+    saveProject({ refresh, handleClearFields, handleSnackBar, projectData });
     handleClose();
   };
 
@@ -195,7 +216,7 @@ export default function RegisterProjectModal({
               label="Cliente"
               variant="standard"
               value={String(projectData.fkCustomer)}
-              onChange={handleCustomerChange}
+              onChange={handleFkChange}
               name="fkCustomer"
               MenuProps={{
                 PaperProps: {
@@ -219,7 +240,24 @@ export default function RegisterProjectModal({
                 </MenuItem>
               ))}
             </Select>
+            {errors.fkCustomer && (
+              <Typography variant="caption" color="error">
+                {errors.fkCustomer}
+              </Typography>
+            )}
           </FormControl>
+
+          <TextField
+            label="Nombre de proyecto"
+            variant="standard"
+            fullWidth
+            name="name"
+            value={projectData.name}
+            onChange={handleChange}
+            margin="normal"
+            error={!!errors.name}
+            helperText={errors.name}
+          />
 
           <TextField
             label="Dirección"
@@ -261,14 +299,14 @@ export default function RegisterProjectModal({
             InputLabelProps={{ shrink: true }}
           />
 
-          <FormControl fullWidth>
+          <FormControl fullWidth margin="normal" error={!!errors.fkSupervisor}>
             <InputLabel>Supervisor</InputLabel>
             <Select
               label="Supervisor"
               variant="standard"
               value={String(projectData.fkSupervisor)}
-              onChange={handleSupervisorChange}
-              name="fkEmployee"
+              onChange={handleFkChange}
+              name="fkSupervisor"
               MenuProps={{
                 PaperProps: {
                   style: {
@@ -283,6 +321,11 @@ export default function RegisterProjectModal({
                 </MenuItem>
               ))}
             </Select>
+            {errors.fkSupervisor && (
+              <Typography variant="caption" color="error">
+                {errors.fkSupervisor}
+              </Typography>
+            )}
           </FormControl>
           <Box display="flex" justifyContent="right" mt={2}>
             <Button

@@ -55,3 +55,35 @@ export const validateAddress = (address: string) => {
   if (!address.trim()) return "Este campo es requerido";
   return "";
 };
+
+// Validación para fk(number != 0)
+export const validateFk = (fk: number) => {
+  if (!fk) return "Este campo es requerido";
+  return "";
+};
+
+export const validateStartDate = (date: string) => {
+  if (!date) return "Este campo es requerido";
+  return "";
+};
+
+export const validateEndDate = (startDate: string, endDate: string) => {
+  if (!startDate) return "La fecha de inicio no sea definido";
+  if (!endDate) return "Este campo es requerido";
+
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+
+  if (end < start) {
+    return "La fecha de finalización no puede ser anterior a la de inicio.";
+  }
+
+  const diffInMs = end.getTime() - start.getTime();
+  const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+
+  if (diffInDays < 7) {
+    return "El proyecto debe tener una duración mínima de una semana.";
+  }
+
+  return "";
+};
