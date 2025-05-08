@@ -24,7 +24,7 @@ import { useMenuConfig } from "./menuConfig";
 import { useAuth } from "../../context/AuthContext";
 import RegisterCustomerModal from "../../components/modals/RegisterCustomer";
 import EditCustomerModal from "../../components/modals/EditCustomer";
-import { getCustomers, refreshCustomers } from "../../request/Customer";
+import { getCustomers } from "../../request/Customer";
 import { Customer } from "../../interfaces/ModelsTypes";
 
 export default function Customers() {
@@ -56,7 +56,7 @@ export default function Customers() {
   }, []);
 
   const refreshFetchCustomers = () => {
-    refreshCustomers({ setCustomers });
+    getCustomers({ setCustomers });
   };
 
   const filteredCustomers = customers.filter((cust) => {

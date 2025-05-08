@@ -23,16 +23,8 @@ import Dashboard from "../../components/Dashboard";
 import { useMenuConfig } from "./menuConfig";
 import { useAuth } from "../../context/AuthContext";
 import RegisterProjectModal from "../../components/modals/RegisterProject";
-
-interface Project {
-  id: number;
-  name: string;
-  customerName: string;
-  address: string;
-  startDate: string;
-  endDate: string;
-  supervisorName: string;
-}
+import { getProjects } from "../../request/Project";
+import { Project } from "../../interfaces/ModelsTypes";
 
 export default function Projects() {
   const { navItems } = useMenuConfig();
@@ -56,17 +48,17 @@ export default function Projects() {
   };
 
   useEffect(() => {
-    //getProjects({ setProjects, handleSnackBar });
+    getProjects({ setProjects, handleSnackBar });
   }, []);
 
   const refreshFetchProjects = () => {
-    //refreshProjects({ setProjects });
+    getProjects({ setProjects });
   };
 
   const filteredProjects = projects.filter((proj) => {
     return (
-      proj.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      proj.address?.toLowerCase().includes(searchTerm.toLowerCase())
+      proj.projectName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      proj.projectAddress?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   });
 
@@ -100,7 +92,7 @@ export default function Projects() {
               variant="outlined"
               startIcon={<Refresh />}
               onClick={() => {
-                //getProjects({ setProjects, handleSnackBar });
+                getProjects({ setProjects, handleSnackBar });
               }}
             >
               Recargar
@@ -150,12 +142,12 @@ export default function Projects() {
                     backgroundColor: index % 2 === 0 ? "#fff" : "#ecf0f1",
                   }}
                 >
-                  <TableCell>{project.name}</TableCell>
-                  <TableCell>{project.customerName}</TableCell>
-                  <TableCell>{project.address}</TableCell>
-                  <TableCell>{project.startDate}</TableCell>
-                  <TableCell>{project.endDate}</TableCell>
-                  <TableCell>{project.supervisorName}</TableCell>
+                  <TableCell>{project.projectName}</TableCell>
+                  <TableCell>{project.customerFullName}</TableCell>
+                  <TableCell>{project.projectAddress}</TableCell>
+                  <TableCell>{project.projectStartDate}</TableCell>
+                  <TableCell>{project.projectEndDate}</TableCell>
+                  <TableCell>{project.employeeFullName}</TableCell>
                   <TableCell align="right">
                     <IconButton
                       color="primary"

@@ -43,49 +43,9 @@ export const saveCustomer = async ({
   }
 };
 
-interface HandleRefreshCustomerProps {
-  setCustomers: (value: React.SetStateAction<Customer[]>) => void;
-}
-
-export const refreshCustomers = async ({
-  setCustomers,
-}: HandleRefreshCustomerProps) => {
-  try {
-    const token = localStorage.getItem("token");
-
-    const response = await fetch(
-      "http://localhost:8080/api/admin/v1/customers/all",
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error("Error al obtener los empleados.");
-    }
-
-    const data = await response.json();
-
-    const customerData = data.data.map((customer: Customer) => ({
-      customerId: customer.customerId,
-      customerFullName: customer.customerFullName,
-      customerAddress: customer.customerAddress,
-      customerPhone: customer.customerPhone,
-    }));
-
-    setCustomers(customerData);
-  } catch (error) {
-    console.error(String(error));
-  }
-};
-
 interface HandleGetCustomersProps {
   setCustomers: (value: React.SetStateAction<Customer[]>) => void;
-  handleSnackBar: (text: string, type: "success" | "error") => void;
+  handleSnackBar?: (text: string, type: "success" | "error") => void;
 }
 
 export const getCustomers = async ({
@@ -96,7 +56,7 @@ export const getCustomers = async ({
     const token = localStorage.getItem("token");
 
     if (!token) {
-      handleSnackBar("Token no disponible.", "error");
+      if (handleSnackBar) handleSnackBar("Token no disponible.", "error");
       return;
     }
 
@@ -124,9 +84,9 @@ export const getCustomers = async ({
       customerPhone: customer.customerPhone,
     }));
     setCustomers(customerData);
-    handleSnackBar(data.message, "success");
+    if (handleSnackBar) handleSnackBar(data.message, "success");
   } catch (error) {
-    handleSnackBar(String(error), "error");
+    if (handleSnackBar) handleSnackBar(String(error), "error");
   }
 };
 

@@ -10,12 +10,12 @@ public interface ProjectDTO extends EmployeeDTO, CustomerDTO
 
     Integer getProjectId();
     String getProjectName();
-    //Integer getCustomerId();
+    Integer getFkCustomer();
     //String getCustomerName();
     String getProjectAddress();
     LocalDate getProjectStartDate();
     LocalDate getProjectEndDate();
-    //Integer getSupervisorId();
+    Integer getFkSupervisor();
     //String getSupervisorName();  
 
 } 

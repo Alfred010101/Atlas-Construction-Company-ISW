@@ -1,5 +1,9 @@
 package com.back_constructora.controller.admin;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -9,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.back_constructora.dto.ProjectDTO;
 import com.back_constructora.model.Project;
 import com.back_constructora.service.ProjectService;
 import com.back_constructora.util.ApiResponse;
@@ -32,9 +37,21 @@ public class AdminProjectController
     }
 
     @GetMapping("/all")
-    public ResponseEntity<ApiResponse<?>> findAll() {
+    public ResponseEntity<Map<String, Object>> findAll() 
+    {
+        List<ProjectDTO> projects = projectService
+            .findAllAsList()
+            .orElse(Collections.emptyList());
+
+        String message = (projects.isEmpty())  ?  
+            "No se encontraron registros disponibles" : 
+            "Empleados cargados exitosamente!";
+        
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(new ApiResponse<>("Todos los proyectos disponibles", projectService.findAllAsList()));
+            .body(Map.of(
+                "message", message,
+                "data", projects
+            ));
     }
 }

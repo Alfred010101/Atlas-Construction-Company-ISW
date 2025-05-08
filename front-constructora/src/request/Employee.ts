@@ -43,49 +43,9 @@ export const saveEmployee = async ({
   }
 };
 
-interface HandleRefreshEmployeesProps {
-  setEmployees: (value: React.SetStateAction<Employee[]>) => void;
-}
-
-export const refreshEmployees = async ({
-  setEmployees,
-}: HandleRefreshEmployeesProps) => {
-  try {
-    const token = localStorage.getItem("token");
-
-    const response = await fetch(
-      "http://localhost:8080/api/admin/v1/employees/all",
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error("Error al obtener los empleados.");
-    }
-
-    const data = await response.json();
-
-    const employeesData = data.data.map((user: Employee) => ({
-      employeeFullName: user.employeeFullName,
-      username: user.username,
-      employeePhone: user.employeePhone,
-      role: user.role,
-    }));
-
-    setEmployees(employeesData);
-  } catch (error) {
-    console.error(String(error));
-  }
-};
-
 interface HandleGetEmployeesProps {
   setEmployees: (value: React.SetStateAction<Employee[]>) => void;
-  handleSnackBar: (text: string, type: "success" | "error") => void;
+  handleSnackBar?: (text: string, type: "success" | "error") => void;
 }
 
 export const getEmployees = async ({
@@ -96,7 +56,7 @@ export const getEmployees = async ({
     const token = localStorage.getItem("token");
 
     if (!token) {
-      handleSnackBar("Token no disponible.", "error");
+      if (handleSnackBar) handleSnackBar("Token no disponible.", "error");
       return;
     }
 
@@ -125,9 +85,9 @@ export const getEmployees = async ({
     }));
 
     setEmployees(employeesData);
-    handleSnackBar(data.message, "success");
+    if (handleSnackBar) handleSnackBar(data.message, "success");
   } catch (error) {
-    handleSnackBar(String(error), "error");
+    if (handleSnackBar) handleSnackBar(String(error), "error");
   }
 };
 

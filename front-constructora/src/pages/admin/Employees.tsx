@@ -34,11 +34,7 @@ import {
   DialogActions,
 } from "@mui/material";
 import { roles } from "../../utils/varConst";
-import {
-  getEmployees,
-  deleteEmployee,
-  refreshEmployees,
-} from "../../request/Employee";
+import { getEmployees, deleteEmployee } from "../../request/Employee";
 import { Employee } from "../../interfaces/ModelsTypes";
 
 export default function Employees() {
@@ -74,7 +70,7 @@ export default function Employees() {
   }, []);
 
   const refreshFetchEmployees = () => {
-    refreshEmployees({ setEmployees });
+    getEmployees({ setEmployees });
   };
 
   const filteredEmployees = employees.filter((emp) => {
