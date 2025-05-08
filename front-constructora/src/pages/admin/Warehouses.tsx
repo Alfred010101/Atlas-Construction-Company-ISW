@@ -22,16 +22,16 @@ import { Add, Edit, Delete, Search, Refresh } from "@mui/icons-material";
 import Dashboard from "../../components/Dashboard";
 import { useMenuConfig } from "./menuConfig";
 import { useAuth } from "../../context/AuthContext";
-import { getProjects } from "../../request/Project";
-import { Project } from "../../interfaces/ModelsTypes";
 import EditProjectModal from "../../components/modals/EditProject";
 import RegisterWarehouseModel from "../../components/modals/RegisterWarehouse";
+import { getWarehouse } from "../../request/Warehouse";
+import { Warehouse } from "../../interfaces/ModelsTypes";
 
-export default function Warehouse() {
+export default function Warehouses() {
   const { navItems } = useMenuConfig();
   const { isAuthenticated } = useAuth();
 
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [warehouse, setWarehouse] = useState<Warehouse[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -52,17 +52,17 @@ export default function Warehouse() {
   };
 
   useEffect(() => {
-    getProjects({ setProjects, handleSnackBar });
+    getWarehouse({ setWarehouse, handleSnackBar });
   }, []);
 
   const refreshFetchProjects = () => {
-    getProjects({ setProjects });
+    getWarehouse({ setWarehouse });
   };
 
-  const filteredProjects = projects.filter((proj) => {
+  const filteredWarehouse = warehouse.filter((ware) => {
     return (
-      proj.projectName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      proj.projectAddress?.toLowerCase().includes(searchTerm.toLowerCase())
+      ware.warehouseName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ware.warehouseAddress?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   });
 
@@ -96,7 +96,7 @@ export default function Warehouse() {
               variant="outlined"
               startIcon={<Refresh />}
               onClick={() => {
-                getProjects({ setProjects, handleSnackBar });
+                getWarehouse({ setWarehouse, handleSnackBar });
               }}
             >
               Recargar
@@ -136,21 +136,21 @@ export default function Warehouse() {
             </TableHead>
 
             <TableBody>
-              {filteredProjects.map((project, index) => (
+              {filteredWarehouse.map((warehouse, index) => (
                 <TableRow
                   key={index}
                   sx={{
                     backgroundColor: index % 2 === 0 ? "#fff" : "#ecf0f1",
                   }}
                 >
-                  <TableCell>{project.projectName}</TableCell>
-                  <TableCell>{project.employeeFullName}</TableCell>
-                  <TableCell>{project.projectAddress}</TableCell>
+                  <TableCell>{warehouse.warehouseName}</TableCell>
+                  <TableCell>{warehouse.employeeFullName}</TableCell>
+                  <TableCell>{warehouse.warehouseAddress}</TableCell>
                   <TableCell align="right">
                     <IconButton
                       color="primary"
                       onClick={() => {
-                        setIdToEdit(project.projectId || 0);
+                        setIdToEdit(warehouse.warehouseId || 0);
                         setOpenEditModal(true);
                       }}
                       sx={{

@@ -1,7 +1,11 @@
 package com.back_constructora.service;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 
+import com.back_constructora.dto.WarehouseDTO;
 import com.back_constructora.model.Warehouse;
 import com.back_constructora.repository.WarehouseRespository;
 import com.back_constructora.util.Validations;
@@ -36,5 +40,10 @@ public class WarehouseService
         }
 
         return warehouseRespository.save(warehouse);
+    }
+
+    public Optional<List<WarehouseDTO>> findAllAsList() 
+    {
+        return warehouseRespository.findAllAsList() ;
     }
 }

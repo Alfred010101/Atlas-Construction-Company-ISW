@@ -14,7 +14,7 @@ import "./App.css";
 import EmployeesPage from "./pages/admin/Employees";
 import CustomersPage from "./pages/admin/Customers";
 import ProjectsPage from "./pages/admin/Projects";
-import WarehousePage from "./pages/admin/Warehouse";
+import WarehousePage from "./pages/admin/Warehouses";
 import SuppliersPage from "./pages/admin/Suppliers";
 import StockPage from "./pages/admin/Stock";
 

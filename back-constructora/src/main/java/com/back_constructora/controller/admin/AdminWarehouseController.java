@@ -1,14 +1,20 @@
 package com.back_constructora.controller.admin;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.back_constructora.dto.WarehouseDTO;
 import com.back_constructora.model.Warehouse;
 import com.back_constructora.service.WarehouseService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,5 +43,24 @@ public class AdminWarehouseController
         return ResponseEntity
             .status(HttpStatus.CREATED)
             .body(json);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<Map<String, Object>> findAll() 
+    {
+        List<WarehouseDTO> warehouse = warehouseService
+            .findAllAsList()
+            .orElse(Collections.emptyList());
+
+        String message = (warehouse.isEmpty())  ?  
+            "No se encontraron registros disponibles" : 
+            "Almacenes cargados exitosamente!";
+        
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(Map.of(
+                "message", message,
+                "data", warehouse
+            ));
     }
 }

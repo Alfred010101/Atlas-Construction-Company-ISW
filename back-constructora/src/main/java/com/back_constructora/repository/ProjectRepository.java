@@ -27,7 +27,7 @@ public interface ProjectRepository extends JpaRepository<Project, Integer>
             p.end_date AS projectEndDate,
             c.id AS fkCustomer,
             CONCAT(c.first_name, ' ', c.last_name) AS customerFullName,
-            e.id AS fksupervisor,
+            e.id AS fkSupervisor,
             CONCAT(e.first_name, ' ', e.last_name) AS employeeFullName
         FROM 
             projects p
